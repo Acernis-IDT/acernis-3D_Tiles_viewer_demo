@@ -3,10 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cesium Client Demo</title>
-  <script src="https://cesium.com/downloads/cesiumjs/releases/1.130/Build/Cesium/Cesium.js"></script>
-  <link rel="stylesheet"
-        href="https://cesium.com/downloads/cesiumjs/releases/1.130/Build/Cesium/Widgets/widgets.css">
+  <title>Local 3D Tiles demo</title>
+
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.146/Build/Cesium/Cesium.js"></script>
+  <link
+    href="https://cesium.com/downloads/cesiumjs/releases/1.146/Build/Cesium/Widgets/widgets.css"
+    rel="stylesheet"
+  >
+
   <style>
     html, body, #cesiumContainer {
       width: 100%;
@@ -14,18 +18,181 @@
       margin: 0;
       overflow: hidden;
     }
+    #status {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1;
+      padding: 8px;
+      background: white;
+      font: 14px sans-serif;
+    }
+    #tools {
+      position: absolute;
+      z-index: 2;
+      top: 10px;
+      right: 10px;
+      padding: 10px;
+      background: white;
+      font: 14px sans-serif;
+    }
+
+    #tools button {
+      margin: 2px;
+    }
+
+    #result {
+      margin-top: 8px;
+      max-width: 320px;
+    }
   </style>
 </head>
 <body>
   <div id="cesiumContainer"></div>
+  <div id="status">Loading tileset…</div>
+  <div id="tools">
+    <button id="coordsButton">Get coordinates</button>
+    <button id="measureButton">Measure distance</button>
+    <button id="cancelButton">Cancel</button>
+    <div id="result">Choose a tool, then click the model.</div>
+  </div>
 
-  <script>
-    const viewer = new Cesium.Viewer("cesiumContainer");
+  <script type="module">
+    const viewer = new Cesium.Viewer("cesiumContainer", {
+      baseLayer: false,
+      baseLayerPicker: false,
+      animation: false,
+      timeline: false,
+      geocoder: false
+    });
 
-    // Replace this with the online URL to your tileset.json
-    Cesium.Cesium3DTileset.fromUrl("https://YOUR-HOST/demo/tileset.json")
-      .then(tileset => viewer.scene.primitives.add(tileset))
-      .catch(error => console.error("Could not load tileset:", error));
+    let tool = null;
+    let measurePoints = [];
+    let temporaryGraphics = [];
+
+    const result = document.getElementById("result");
+
+    function clearTemporaryGraphics() {
+      temporaryGraphics.forEach((entity) => viewer.entities.remove(entity));
+      temporaryGraphics = [];
+      measurePoints = [];
+    }
+
+    function getClickedPosition(screenPosition) {
+      const scene = viewer.scene;
+
+      // Prefer the actual visible surface, including 3D Tiles.
+      if (scene.pickPositionSupported) {
+        const position = scene.pickPosition(screenPosition);
+        if (Cesium.defined(position)) return position;
+      }
+
+      // Fallback: intersection with the globe, if available.
+      const ray = viewer.camera.getPickRay(screenPosition);
+      return ray ? viewer.scene.globe.pick(ray, scene) : undefined;
+    }
+
+    document.getElementById("coordsButton").onclick = () => {
+      clearTemporaryGraphics();
+      tool = "coordinates";
+      result.textContent = "Click a point on the model.";
+    };
+
+    document.getElementById("measureButton").onclick = () => {
+      clearTemporaryGraphics();
+      tool = "measure";
+      result.textContent = "Click two points on the model.";
+    };
+
+    document.getElementById("cancelButton").onclick = () => {
+      tool = null;
+      clearTemporaryGraphics();
+      result.textContent = "Tool cancelled.";
+    };
+
+    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+    handler.setInputAction((click) => {
+      if (!tool) return;
+
+      const position = getClickedPosition(click.position);
+      if (!position) {
+        result.textContent = "No surface found there. Try clicking directly on the model.";
+        return;
+      }
+
+      const cartographic = Cesium.Cartographic.fromCartesian(position);
+      const longitude = Cesium.Math.toDegrees(cartographic.longitude);
+      const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+      const height = cartographic.height;
+
+      if (tool === "coordinates") {
+        result.textContent =
+          `Longitude: ${longitude.toFixed(7)}°, ` +
+          `Latitude: ${latitude.toFixed(7)}°, ` +
+          `Height: ${height.toFixed(2)} m`;
+
+        temporaryGraphics.push(viewer.entities.add({
+          position,
+          point: {
+            pixelSize: 10,
+            color: Cesium.Color.YELLOW,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2
+          }
+        }));
+
+        tool = null;
+        return;
+      }
+
+      measurePoints.push(position);
+
+      temporaryGraphics.push(viewer.entities.add({
+        position,
+        point: {
+          pixelSize: 10,
+          color: Cesium.Color.CYAN,
+          outlineColor: Cesium.Color.BLACK,
+          outlineWidth: 2
+        }
+      }));
+
+      if (measurePoints.length === 1) {
+        result.textContent = "First point set. Click the second point.";
+        return;
+      }
+
+      const distance = Cesium.Cartesian3.distance(
+        measurePoints[0],
+        measurePoints[1]
+      );
+
+      temporaryGraphics.push(viewer.entities.add({
+        polyline: {
+          positions: measurePoints,
+          width: 3,
+          material: Cesium.Color.CYAN
+        }
+      }));
+
+      result.textContent = `Straight-line 3D distance: ${distance.toFixed(2)} m`;
+      tool = null;
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    try {
+      const tileset = await Cesium.Cesium3DTileset.fromUrl(
+        "./Scene/Production_3_3DTiles.json"
+      );
+
+      viewer.scene.primitives.add(tileset);
+      await viewer.zoomTo(tileset);
+      document.getElementById("status").textContent = "Tileset loaded";
+    } catch (error) {
+      console.error(error);
+      document.getElementById("status").textContent =
+        "Could not load tileset. Check the browser console and file paths.";
+    }
   </script>
 </body>
 </html>
