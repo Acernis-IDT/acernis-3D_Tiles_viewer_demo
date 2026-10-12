@@ -1,198 +1,1921 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Local 3D Tiles demo</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Acernis – Project Viewer Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <script src="https://cesium.com/downloads/cesiumjs/releases/1.146/Build/Cesium/Cesium.js"></script>
-  <link
-    href="https://cesium.com/downloads/cesiumjs/releases/1.146/Build/Cesium/Widgets/widgets.css"
-    rel="stylesheet"
-  >
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- CesiumJS -->
+  <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.122/Build/Cesium/Widgets/widgets.css">
 
   <style>
-    html, body, #cesiumContainer {
+    :root {
+      --primary-900: #0a5c3a;
+      --primary-800: #0e6f47;
+      --primary-700: #128255;
+      --orange-accent: #b85c2a;
+      --text: #1a1a1a;
+      --text-light: #4a4a4a;
+      --muted: #888888;
+      --border: #e0e0e0;
+      --divider: #f0f0f0;
+      --bg: #f8f9fa;
+      --white: #ffffff;
+      --sidebar-width: 320px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    button { cursor: pointer; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 12px;
+      color: var(--text);
+      background: var(--bg);
+    }
+    .app { display: flex; width: 100%; height: 100vh; overflow: hidden; }
+    .icon-rail {
+      width: 44px;
+      flex: 0 0 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      z-index: 10;
+    }
+    .rail-logo {
+      width: 100%;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0a5c3a;
+      color: white;
+    }
+    .rail-logo svg { width: 24px; height: 24px; }
+    .rail-btn {
+      width: 100%;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.15s;
+      border: none;
+      background: none;
+    }
+    .rail-btn:hover { background: var(--bg); color: var(--text); }
+    .rail-btn.active { color: var(--primary-700); background: #f0f7f4; }
+    .rail-btn svg { width: 18px; height: 18px; }
+    .sidebar {
+      width: var(--sidebar-width);
+      flex: 0 0 var(--sidebar-width);
+      height: 100vh;
+      min-height: 0;
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Cover image section */
+    .cover-section {
+      position: relative;
+      width: 100%;
+      height: 140px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .cover-image {
       width: 100%;
       height: 100%;
+      object-fit: cover;
+    }
+    .back-btn {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      color: var(--text);
+      z-index: 2;
+    }
+    .back-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Action bar (share/edit/settings) */
+    .action-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px 0;
+      flex-shrink: 0;
+    }
+    .icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-light);
+    }
+    .icon-btn:hover { background: var(--bg); }
+    .icon-btn.bordered {
+      background: var(--white);
+      border: 1px solid var(--border);
+    }
+    .icon-btn svg { width: 16px; height: 16px; }
+    .share-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: var(--primary-800);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .share-btn svg { width: 14px; height: 14px; }
+    .share-btn:hover { background: var(--primary-900); }
+
+    .sidebar-header {
+      padding: 12px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .project-code {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .project-meta {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+    .project-address {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-bottom: 4px;
+    }
+    .project-coords {
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .badges {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      padding: 12px 24px;
       margin: 0;
+    }
+
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text, #333);
+      margin: 0;
+    }
+
+    .badge-icon {
+      width: 16px;
+      height: 16px;
+      object-fit: contain;
+      flex-shrink: 0;
+      display: block;
+    }
+    .badge svg { width: 12px; height: 12px; }
+    .section {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--divider);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .section-title .label-highlight { font-weight: 700; }
+    .info-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid var(--muted);
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .card-row {
+      display: flex;
+      gap: 8px;
+    }
+    .card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 8px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: var(--white);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 0;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+    .card:hover {
+      border-color: #b0d4be;
+      background: #f6fdf9;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+    .card.selected {
+      border-color: var(--primary-800);
+      border-radius: 16px;
+      background: #f0f7f4;
+      box-shadow: 0 2px 8px rgba(10, 92, 58, 0.1);
+    }
+    .card svg {
+      width: 24px;
+      height: 24px;
+      color: var(--primary-700);
+    }
+    .card.selected svg {
+      color: var(--primary-800);
+    }
+    .card-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--primary-700);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .card.selected .card-label {
+      color: var(--primary-800);
+    }
+
+    .card-sublabel {
+      font-size: 9.5px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* 2x2 grid for Plan section */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .card-grid .card {
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: 14px 12px;
+    }
+    .card-grid .card svg {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    .card-grid .card-label {
+      text-align: left;
+      color: #000000;
+      font-weight: 100;
+      font-size: 11px;
+    }
+    .add-card {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px;
+      border: 2px dashed var(--primary-700);
+      border-radius: 8px;
+      color: var(--primary-700);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      background: var(--white);
+    }
+    .add-card:hover {
+      border-color: var(--primary-800);
+      color: var(--primary-800);
+      background: #f6fdf9;
+    }
+    .add-card svg {
+      width: 16px;
+      height: 16px;
+      color: var(--primary-700);
+    }
+    .chat-section {
+      padding: 14px 20px;
+      margin-top: auto;
+      border-top: 1px solid var(--border);
+      background: var(--white);
+    }
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .chat-title { font-size: 11.5px; font-weight: 600; color: var(--text); }
+    .chat-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 6px 12px 6px 8px;
+      background: var(--bg);
+    }
+    .chat-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--primary-800);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chat-avatar svg { width: 12px; height: 12px; color: white; }
+    .chat-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 11px;
+      color: var(--muted);
+      outline: none;
+    }
+    .viewer {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      height: 100%;
+      background: #e8edf0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
       overflow: hidden;
     }
-    #status {
-      position: absolute;
-      top: 10px;
-      left: 10px;
+
+    .viewer-content {
+      width: 100%;
+      height: 100%;
+      display: none;
+      position: relative;
+    }
+
+    .viewer-content.active {
+      display: flex;
+    }
+    #tilesViewerContent {
+      position: absolute; inset: 0; z-index: 20;
+      background: #111;
+    }
+    #tilesViewerContent.fullscreen-fallback {
+      position: fixed; inset: 0; z-index: 9999;
+      width: 100vw; height: 100vh;
+    }
+    #tilesViewerContent .tiles-viewer-toolbar {
+      position: absolute; top: 16px; right: 16px; z-index: 1002;
+      display: flex; gap: 8px;
+    }
+    #tilesViewerContent .tiles-viewer-toolbar button {
+      font: inherit; cursor: pointer;
+    }
+    #tilesFullscreenButton {
+      width: 40px; height: 40px; padding: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: #c8f2dc; color: #1f5c43;
+      border: 1px solid #a3e4c3; border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(31, 92, 67, .16);
+    }
+    #tilesFullscreenButton:hover { background: #b0ebcc; }
+    #tilesFullscreenButton .icon-exit { display: none; }
+    #tilesFullscreenButton.is-fullscreen .icon-enter { display: none; }
+    #tilesFullscreenButton.is-fullscreen .icon-exit { display: block; }
+
+    #tilesViewerTools {
+      position: absolute; top: 16px; left: 16px; z-index: 1002;
+      width: min(280px, calc(100% - 88px)); padding: 12px;
+      background: #fff; border: 1px solid #d9eee3; border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(31, 92, 67, .14);
+      color: #1f3d31;
+    }
+    #tilesViewerTools .tools-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      min-height: 22px;
+    }
+    #tilesViewerTools .tools-heading {
+      margin: 0; font-size: 12px; font-weight: 700;
+      letter-spacing: .04em; text-transform: uppercase; color: #376b54;
+    }
+    #tilesViewerTools .tools-toggle {
+      width: 24px; height: 24px; padding: 2px; display: inline-flex;
+      align-items: center; justify-content: center; border: 0; background: transparent;
+      color: #1f5c43; cursor: pointer; border-radius: 5px;
+    }
+    #tilesViewerTools .tools-toggle:hover { background: #c8f2dc; }
+    #tilesViewerTools .tools-toggle svg { transition: transform .15s ease; }
+    #tilesViewerTools.is-collapsed .tools-toggle svg { transform: rotate(-90deg); }
+    #tilesViewerTools .tools-body { margin-top: 9px; }
+    #tilesViewerTools.is-collapsed .tools-body { display: none; }
+    #tilesViewerTools .tools-actions { display: flex; flex-direction: column; gap: 7px; }
+    #tilesViewerTools .tools-actions button {
+      width: 100%; display: inline-flex; align-items: center; justify-content: flex-start; gap: 7px;
+      border: 1px solid #b9dec9; border-radius: 7px; padding: 7px 9px;
+      background: #f5fbf7; color: #1f5c43; font: inherit; font-size: 12px;
+      cursor: pointer; transition: background .15s ease, border-color .15s ease;
+    }
+    #tilesViewerTools .tools-actions button:hover, #tilesViewerTools .tools-actions button.active {
+      background: #c8f2dc; border-color: #a3e4c3;
+    }
+    #tilesViewerTools .tools-actions svg { flex: 0 0 auto; }
+    #tilesViewerToolResult {
+      display: block; width: 100%; min-height: calc(1.4em * 3 + 14px); margin-top: 9px;
+      padding: 7px 8px; box-sizing: border-box; overflow: hidden; resize: none;
+      outline: none; user-select: text; cursor: default; white-space: pre-line;
+      border: 1px solid #d7e8df; border-radius: 7px; background: #f4fbf7;
+      color: #315748; font: inherit; font-size: 11px; line-height: 1.4;
+    }
+
+    #tilesViewerContainer {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, #6fa8dc 0%, #dbeefc 100%);
+    }
+    #tilesViewerStatus { position: absolute; top: 12px; left: 12px; z-index: 2; padding: 8px 10px; background: rgba(255,255,255,.9); border-radius: 4px; display: none; }
+
+
+    .viewer iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #dde2e6;
+    }
+
+    #feaCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: #dde2e6;
+    }
+
+    #shapediverViewerContent {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .viewer-mask {
+      /*position: absolute;*/
+      /*top: 0;*/
+      /*left: 0;*/
+      /*width: 50px;*/
+      /*height: 100px;*/
+      /*background: #1c1e22;*/
+      /*z-index: 5;*/
+      /*opacity: 0;*/
+      /*transition: opacity 0.3s ease;*/
+    }
+
+    .viewer-mask.visible {
+      opacity: 1;
+    }
+
+    /* Default viewer with map */
+    .default-viewer {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #e8edf0 0%, #dde2e6 100%);
+      overflow: hidden;
+    }
+
+    #projectMap {
+      width: 100%;
+      height: 100%;
       z-index: 1;
-      padding: 8px;
-      background: white;
-      font: 14px sans-serif;
     }
-    #tools {
+
+    .logo-container {
+      position: static;
+      width: 100%;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+
+    .logo-image {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    /* Custom marker wrapper */
+   .marker-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0;
+      position: relative;
+      width: 90px;
+      height: 50px;
+  }
+
+    /* Blue pin icon */
+    .pin-icon {
+      width: 32px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       position: absolute;
-      z-index: 2;
-      top: 10px;
-      right: 10px;
-      padding: 10px;
-      background: white;
-      font: 14px sans-serif;
+      left: 4px;  /* Offset from anchor point */
+      top: 5px;
     }
 
-    #tools button {
-      margin: 2px;
+    /* Antenna icon */
+    .antenna-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(37, 99, 235, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: absolute;
+      left: 40px;  /* Positioned to the right of pin, but same anchor */
+      top: 0px;
     }
 
-    #result {
-      margin-top: 8px;
-      max-width: 320px;
+    @keyframes versionUpdatePulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(18, 130, 85, 0.6);
+        background: #eafaf1;
+      }
+      30% {
+        box-shadow: 0 0 0 6px rgba(18, 130, 85, 0.15);
+        background: #d4f4e2;
+      }
+      60% {
+        box-shadow: 0 0 0 3px rgba(18, 130, 85, 0.25);
+        background: #eafaf1;
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(18, 130, 85, 0);
+        background: #eafaf1;
+      }
     }
-  </style>
+
+
+    @keyframes badgePop {
+      0% {
+        transform: scale(1);
+      }
+      40% {
+        transform: scale(1.35);
+        background: var(--primary-700);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--white);
+      border-radius: 12px;
+      width: 480px;
+      max-width: 90vw;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .modal-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .modal-close-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-light);
+      font-size: 20px;
+      line-height: 1;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-close-btn:hover {
+      color: var(--text);
+    }
+
+    .modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-shrink: 0;
+    }
+    .modal-btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .modal-btn-secondary {
+      background: var(--bg);
+      color: var(--text-light);
+      border: 1px solid var(--border);
+    }
+    .modal-btn-secondary:hover {
+      background: var(--white);
+      border-color: var(--primary-700);
+      color: var(--primary-800);
+    }
+    .modal-btn-primary {
+      background: var(--primary-800);
+      color: white;
+    }
+    .modal-btn-primary:hover {
+      background: var(--primary-900);
+    }
+
+    .compare-modal {
+      max-width: 640px;
+      width: 90%;
+    }
+
+    .compare-subtitle {
+      padding: 0 24px;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .compare-subtitle span {
+      font-weight: 600;
+      color: #222;
+    }
+
+    .compare-table-wrapper {
+      max-height: 380px;
+      overflow-y: auto;
+      padding: 0 24px;
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .compare-table th {
+      text-align: left;
+      padding: 10px 8px;
+      background: #f7f7f7;
+      border-bottom: 2px solid #e0e0e0;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .compare-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+    }
+
+
+
+    .compare-row-added {
+      background: #eafaf1;
+    }
+
+    .compare-row-removed {
+      background: #fdecea;
+    }
+
+    .compare-row-modified {
+      background: #fff8e6;
+    }
+
+    .change-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .change-tag.added {
+      background: #d4f4e2;
+      color: #12813f;
+    }
+
+    .change-tag.removed {
+      background: #f9d6d5;
+      color: #b42318;
+    }
+
+    .change-tag.modified {
+      background: #fdecc8;
+      color: #9a6700;
+    }
+
+    .project-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* Adjust new-version-btn to fit inline next to title instead of full width */
+
+
+    .new-version-modal {
+      width: 480px;
+      max-width: 90vw;
+    }
+
+    .new-version-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .upload-dropzone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 28px 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      background: var(--bg);
+    }
+    .upload-dropzone:hover {
+      border-color: var(--primary-700);
+      background: #f0faf5;
+    }
+    .upload-dropzone.dragover {
+      border-color: var(--primary-700);
+      background: #eafaf1;
+    }
+    .upload-dropzone.has-file {
+      border-style: solid;
+      border-color: var(--primary-700);
+      background: #eafaf1;
+      cursor: default;
+    }
+
+    .upload-idle-state svg {
+      width: 32px;
+      height: 32px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .upload-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .upload-subtitle {
+      font-size: 10.5px;
+      color: var(--muted);
+    }
+
+    .upload-file-state svg {
+      width: 30px;
+      height: 30px;
+      color: var(--primary-700);
+      margin-bottom: 2px;
+    }
+    .upload-file-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      word-break: break-all;
+    }
+    .upload-file-size {
+      font-size: 10.5px;
+      color: var(--muted);
+    }
+    .upload-remove-btn {
+      margin-top: 6px;
+      background: none;
+      border: none;
+      color: #c0392b;
+      font-size: 10.5px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      font-family: inherit;
+    }
+
+    .upload-error {
+      font-size: 10.5px;
+      color: #c0392b;
+      font-weight: 500;
+      margin-top: -8px;
+    }
+
+    .new-version-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .field-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-light);
+    }
+    .field-input,
+    .field-textarea {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 11.5px;
+      font-family: inherit;
+      color: var(--text);
+      resize: vertical;
+    }
+    .field-input:focus,
+    .field-textarea:focus {
+      outline: none;
+      border-color: var(--primary-700);
+    }
+
+    .modal-btn-primary:disabled {
+      background: #b9ddc9;
+      border-color: #b9ddc9;
+      cursor: not-allowed;
+    }
+
+    .validation-modal {
+      width: 460px;
+      max-width: 90vw;
+    }
+
+    .validation-body {
+      padding: 24px 20px;
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Scanning state */
+    .validation-scanning {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex: 1;
+      padding: 20px 0;
+    }
+
+    .progress-wheel-wrap {
+      position: relative;
+      width: 110px;
+      height: 110px;
+    }
+    .progress-wheel {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+    .progress-wheel-bg {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 7;
+    }
+    .progress-wheel-fg {
+      fill: none;
+      stroke: var(--primary-700);
+      stroke-width: 7;
+      stroke-linecap: round;
+      stroke-dasharray: 264;
+      stroke-dashoffset: 264;
+      transition: stroke-dashoffset 0.25s ease;
+    }
+    .progress-wheel-pct {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .validation-status-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      text-align: center;
+    }
+    .validation-file-label {
+      font-size: 10.5px;
+      color: var(--muted);
+    }
+
+    /* Results state */
+    .validation-results {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .validation-results-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .validation-result-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #eafaf1;
+      color: var(--primary-700);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .validation-result-icon.icon-warn {
+      background: #fdf3e7;
+      color: #c98a2c;
+    }
+    .validation-result-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+    .validation-results-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .validation-results-subtitle {
+      font-size: 10.5px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .validation-metrics-grid {
+      margin-top: 12px;
+      padding-top: 16px; /* extra top padding as requested */
+    }
+    .metric-card {
+      border-radius: 8px;
+      padding: 10px 8px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .metric-value {
+      font-size: 19px;
+      font-weight: 800;
+    }
+    .metric-label {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--text-light);
+      margin-top: 2px;
+      line-height: 1.3;
+    }
+    .metric-good { background: #eafaf1; border-color: #cdeedd; }
+    .metric-good .metric-value { color: var(--primary-700); }
+    .metric-warn { background: #fdf3e7; border-color: #f5ddb8; }
+    .metric-warn .metric-value { color: #c98a2c; }
+    .metric-bad { background: #fdeceb; border-color: #f6c9c4; }
+    .metric-bad .metric-value { color: #c0392b; }
+
+    .validation-checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 160px;
+      overflow-y: auto;
+      /* border-top removed to drop the grey divider above checklist */
+      padding-top: 10px;
+    }
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text);
+    }
+    .checklist-item svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+    .checklist-item.status-ok svg { color: var(--primary-700); }
+    .checklist-item.status-warn svg { color: #c98a2c; }
+    .checklist-item.status-bad svg { color: #c0392b; }
+    .checklist-item-count {
+      margin-left: auto;
+      font-weight: 700;
+      font-size: 10.5px;
+      color: var(--text-light);
+    }
+
+    /* ============ IFC VALIDATION MODAL STYLES ============ */
+    .validation-modal {
+      max-width: 500px;
+    }
+
+    .validation-body {
+      padding: 30px 20px;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .progress-wheel-wrap {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin-bottom: 20px;
+    }
+
+    .progress-wheel {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .progress-wheel-bg {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 4;
+    }
+
+    .progress-wheel-fg {
+      fill: none;
+      stroke: var(--primary-700);
+      stroke-width: 4;
+      stroke-dasharray: 264;
+      stroke-dashoffset: 264;
+      transition: stroke-dashoffset 0.3s ease;
+      stroke-linecap: round;
+    }
+
+    .progress-wheel-pct {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary-700);
+    }
+
+    .validation-status-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .validation-file-label {
+      font-size: 12px;
+      color: var(--text-light);
+    }
+
+    .validation-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .metric-card {
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .metric-card.metric-good {
+      background: rgba(34, 197, 94, 0.05);
+      border-color: rgba(34, 197, 94, 0.2);
+    }
+
+    .metric-card.metric-warn {
+      background: rgba(201, 138, 44, 0.05);
+      border-color: rgba(201, 138, 44, 0.2);
+    }
+
+    .metric-card.metric-bad {
+      background: rgba(192, 57, 43, 0.05);
+      border-color: rgba(192, 57, 43, 0.2);
+    }
+
+    .metric-value {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .metric-card.metric-good .metric-value {
+      color: #22c55e;
+    }
+
+    .metric-card.metric-warn .metric-value {
+      color: #c98a2c;
+    }
+
+    .metric-card.metric-bad .metric-value {
+      color: #c0392b;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .validation-checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 160px;
+      overflow-y: auto;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text);
+    }
+
+    .checklist-item svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .checklist-item.status-ok svg { color: var(--primary-700); }
+    .checklist-item.status-warn svg { color: #c98a2c; }
+    .checklist-item.status-bad svg { color: #c0392b; }
+
+    .checklist-item-count {
+      margin-left: auto;
+      font-weight: 700;
+      font-size: 10.5px;
+      color: var(--text-light);
+    }
+
+    .tl-bulb {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      color: white;
+      margin: 0 auto 4px;
+      transition: background 0.3s ease;
+    }
+    .tl-green { background: #2ecc71; box-shadow: 0 0 8px rgba(46,204,113,0.5); }
+    .tl-red   { background: #e74c3c; box-shadow: 0 0 8px rgba(231,76,60,0.4); }
+    .tl-off   { background: #d5d5d5; box-shadow: none; }
+
+    .traffic-light-section {
+      width: 100%;
+      padding: 10px 0;
+      margin-bottom: 12px;
+      /* no border-top, no border-bottom — dividers removed */
+    }
+
+    .traffic-light-header {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-light);
+      text-align: center;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .traffic-light-row {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+    }
+    .tl-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .tl-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .tl-sublabel {
+      font-size: 9.5px;
+      color: var(--muted);
+    }
+
+    .version-item-tl-bulb.green { background: #2ecc71; box-shadow: 0 0 4px rgba(46,204,113,0.5); }
+    .version-item-tl-bulb.red   { background: #e74c3c; box-shadow: 0 0 4px rgba(231,76,60,0.4); }
+    .version-item-tl-bulb.off   { background: #d5d5d5; }
+
+
+  </style></style>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.122/Build/Cesium/Cesium.js"></script>
 </head>
 <body>
-  <div id="cesiumContainer"></div>
-  <div id="status">Loading tileset…</div>
-  <div id="tools">
-    <button id="coordsButton">Get coordinates</button>
-    <button id="measureButton">Measure distance</button>
-    <button id="cancelButton">Cancel</button>
-    <div id="result">Choose a tool, then click the model.</div>
+
+  <div class="app">
+
+    <!-- Left icon rail -->
+    <div class="icon-rail">
+
+      <div class="logo-container">
+            <img src="icon.png" alt="Logo" class="logo-image">
+      </div>
+      <button class="rail-btn" title="Map">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+          <line x1="8" y1="2" x2="8" y2="18"></line>
+          <line x1="16" y1="6" x2="16" y2="22"></line>
+        </svg>
+      </button>
+      <button class="rail-btn" title="Layers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+      </button>
+      <button class="rail-btn" title="Measure">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6"></path>
+          <path d="M2.5 22v-6h6"></path>
+          <path d="M2.5 16a9.97 9.97 0 0 1 5-2.5l5-5"></path>
+          <path d="M21.5 8a9.97 9.97 0 0 1-5 2.5l-5 5"></path>
+          <line x1="2.5" y1="2" x2="21.5" y2="22"></line>
+        </svg>
+      </button>
+      <button class="rail-btn" title="Share">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Sidebar panel -->
+    <div class="sidebar">
+
+      <!-- Cover image -->
+      <div class="cover-section">
+        <img src="project-cover.png" alt="Project cover" class="cover-image">
+        <button class="back-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back
+        </button>
+      </div>
+
+      <!-- Action bar -->
+      <div class="action-bar">
+        <button class="icon-btn" title="Members">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </button>
+
+        <button class="share-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+          Share
+        </button>
+
+        <button class="icon-btn bordered" title="Edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+        </button>
+
+        <button class="icon-btn bordered" title="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="sidebar-header">
+        <div class="project-title-row">
+          <div class="project-code">Acernis Demo</div>
+        </div>
+        <div class="project-meta">Created by Operations Acernis on 12 Oct 2026</div>
+        <div class="project-address">40 Rue la Tour d'Auvergne, 44200 Nantes, France</div>
+        <div class="project-coords">Coordinates: 47.2061391,-1.5629426</div>
+      </div>
+
+      <div class="badges">
+        <div class="badge">
+          <img src="Logo.jpg" alt="Logo" class="badge-icon">
+          Swisscom
+        </div>
+        <div class="badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4.9 16.1C1 12.2 1 5.8 4.9 1.9"></path>
+            <path d="M7.8 4.7a6.14 6.14 0 0 0-.8 7.5"></path>
+            <circle cx="12" cy="9" r="2"></circle>
+            <path d="M16.2 4.8c2 2 2.26 5.11.8 7.47"></path>
+            <path d="M19.1 1.9a9.96 9.96 0 0 1 0 14.2"></path>
+            <path d="M9.5 18h5"></path>
+            <path d="M12 18v4"></path>
+          </svg>
+          Building Rooftop
+        </div>
+      </div>
+
+      <!-- Discover -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title"><span class="label-highlight">Discover</span> the site and surroundings.</span>
+          <div class="info-icon">i</div>
+        </div>
+        <div class="card-row">
+          <div class="card selected" id="surroundingMapCard">
+            <svg viewBox="64 64 896 896" focusable="false" fill="currentColor">
+              <path d="M512 64c-181.08 0-328 146.92-328 328 0 194.98 175.63 366.02 313.72 494.75a19.86 19.86 0 0028.56 0C664.37 758.02 840 586.98 840 392c0-181.08-146.92-328-328-328zm0 480a152 152 0 110-304 152 152 0 010 304z"></path>
+            </svg>
+            <div class="card-label">Surroundings<br>Map</div>
+          </div>
+          <div class="card">
+            <svg viewBox="64 64 896 896" focusable="false" fill="currentColor">
+              <path d="M928 160H96c-17.7 0-32 14.3-32 32v640c0 17.7 14.3 32 32 32h832c17.7 0 32-14.3 32-32V192c0-17.7-14.3-32-32-32zm-40 632H136V232h752v560zM304 456a88 88 0 100-176 88 88 0 000 176zm-64 200h336l-96-146-72 84-56-72-112 134z"></path>
+            </svg>
+            <div class="card-label">Satellite<br>View</div>
+          </div>
+          <div class="card">
+            <svg viewBox="64 64 896 896" focusable="false" fill="currentColor">
+              <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"></path>
+              <path d="M664.3 397.7l-266.7-93.4a32 32 0 00-41 41l93.4 266.7a32 32 0 0041 20.3l101.3-38.4 38.4-101.3a32 32 0 00-20.3-41zM512 560a48 48 0 1148-48 48 48 0 01-48 48z"></path>
+            </svg>
+            <div class="card-label">Cadastral<br>Map</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revisit -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title"><span class="label-highlight">Revisit</span> the site remotely.</span>
+          <div class="info-icon">i</div>
+        </div>
+        <div class="card-row">
+          <div class="card" id="siteVisit3dCard">
+            <svg viewBox="64 64 896 896" focusable="false" fill="currentColor">
+              <path d="M464 144H160c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V160c0-8.8-7.2-16-16-16zm-52 268H212V212h200v200zm452-268H560c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V160c0-8.8-7.2-16-16-16zm-52 268H612V212h200v200zM464 544H160c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V560c0-8.8-7.2-16-16-16zm-52 268H212V612h200v200zm452-268H560c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V560c0-8.8-7.2-16-16-16zm-52 268H612V612h200v200z"></path>
+            </svg>
+            <div class="card-label">3D Site<br>Visit</div>
+          </div>
+          <div class="card">
+            <svg viewBox="64 64 896 896" focusable="false" fill="currentColor">
+              <path d="M928 160H96c-17.7 0-32 14.3-32 32v640c0 17.7 14.3 32 32 32h832c17.7 0 32-14.3 32-32V192c0-17.7-14.3-32-32-32zm-40 632H136V232h752v560zM304 456a88 88 0 100-176 88 88 0 000 176zm-64 200h336l-96-146-72 84-56-72-112 134z"></path>
+            </svg>
+            <div class="card-label">Panoramic<br>Views</div>
+          </div>
+          <div class="card">
+            <svg viewBox="64 64 896 896" focusable="false" fill="currentColor">
+              <path d="M928 160H96c-17.7 0-32 14.3-32 32v640c0 17.7 14.3 32 32 32h832c17.7 0 32-14.3 32-32V192c0-17.7-14.3-32-32-32zm-40 632H136V232h752v560zM304 456a88 88 0 100-176 88 88 0 000 176zm-64 200h336l-96-146-72 84-56-72-112 134z"></path>
+            </svg>
+            <div class="card-label">Project<br>Photos</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plan -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title"><span class="label-highlight">Plan</span> on a reliable basis.</span>
+          <div class="info-icon">i</div>
+        </div>
+        <div class="card-grid">
+          <div class="card">
+            <svg viewBox="64 64 896 896" focusable="false" fill="currentColor">
+              <path d="M482 152c4.4-3.8 11.6-3.8 16 0l360 297.9c6.4 5.3 2.7 15.1-5.5 15.1H820c-6.7 0-12 5.3-12 12v352h64c6.7 0 12 5.3 12 12v52c0 6.7-5.3 12-12 12H72c-6.7 0-12-5.3-12-12v-52c0-6.7 5.3-12 12-12h64V477H127.5c-8.2 0-11.9-9.8-5.5-15.1L482 152zM416 477v352h64V477h-64zm128 0v352h64V477h-64zm-256 0v352h64V477h-64z"></path>
+            </svg>
+            <div class="card-label">Building height plan</div>
+          </div>
+          <div class="card">
+            <svg viewBox="64 64 896 896" focusable="false" fill="currentColor">
+              <path d="M854.6 288.6L639.4 73.4c-6-6-14.1-9.4-22.6-9.4H192c-17.7 0-32 14.3-32 32v832c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V311.3c0-8.5-3.4-16.7-9.4-22.7zM790.2 326H602V137.8L790.2 326zM792 888H232V136h302v216c0 22.1 17.9 40 40 40h218v496z"></path>
+              <path d="M320 512h384v-56H320v56zm0 152h384v-56H320v56zm0 152h256v-56H320v56z"></path>
+            </svg>
+            <div class="card-label">Measurement report</div>
+          </div>
+          <div class="card" id="bimCard">
+            <svg viewBox="64 64 896 896" focusable="false" fill="currentColor">
+              <path d="M464 144H160c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V160c0-8.8-7.2-16-16-16zm-52 268H212V212h200v200zm452-268H560c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V160c0-8.8-7.2-16-16-16zm-52 268H612V212h200v200zM464 544H160c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V560c0-8.8-7.2-16-16-16zm-52 268H212V612h200v200zm452-268H560c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V560c0-8.8-7.2-16-16-16zm-52 268H612V612h200v200z"></path>
+            </svg>
+            <div class="card-label">BIM model</div>
+          </div>
+          <div class="card">
+            <svg viewBox="64 64 896 896" focusable="false" fill="currentColor">
+              <path d="M854.6 288.6L639.4 73.4c-6-6-14.1-9.4-22.6-9.4H192c-17.7 0-32 14.3-32 32v832c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V311.3c0-8.5-3.4-16.7-9.4-22.7zM790.2 326H602V137.8L790.2 326zM792 888H232V136h302v216c0 22.1 17.9 40 40 40h218v496z"></path>
+            </svg>
+            <div class="card-label">Other documents</div>
+          </div>
+        </div>
+        <div class="add-card">
+          <svg viewBox="64 64 896 896" focusable="false" fill="currentColor">
+            <path d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"></path>
+            <path d="M168 474h688q8 0 8 8v60q0 8-8 8H168q-8 0-8-8v-60q0-8 8-8z"></path>
+          </svg>
+          Add more...
+        </div>
+      </div>
+
+      <!-- Chat -->
+      <div class="chat-section">
+        <div class="chat-header">
+          <span class="chat-title">Chat with colleagues and contractors.</span>
+        </div>
+        <div class="chat-input-wrap">
+          <div class="chat-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <input type="text" class="chat-input" placeholder="Start a new comment..." />
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- Active viewer content -->
+    <!-- Right viewer -->
+    <div class="viewer" id="projectViewer">
+      <div class="default-viewer">
+        <div id="projectMap"></div>
+      </div>
+      <div class="viewer-content" id="tilesViewerContent">
+        <div class="tiles-viewer-toolbar">
+          <button id="tilesFullscreenButton" class="tiles-icon-button" type="button"
+                  title="Full screen" aria-label="Full screen">
+            <svg class="icon-enter" viewBox="0 0 24 24" width="20" height="20" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
+            </svg>
+            <svg class="icon-exit" viewBox="0 0 24 24" width="20" height="20" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>
+            </svg>
+          </button>
+        </div>
+        <div id="tilesViewerTools" aria-label="3D viewer tools">
+          <div class="tools-header">
+            <p class="tools-heading">Measurement tools</p>
+            <button id="tilesViewerToolsToggle" class="tools-toggle" type="button" aria-expanded="true"
+                    aria-controls="tilesViewerToolsBody" title="Hide site tools" aria-label="Hide site tools">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </button>
+          </div>
+          <div id="tilesViewerToolsBody" class="tools-body">
+            <div class="tools-actions">
+              <button id="getCoordinatesButton" type="button">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/>
+                  <circle cx="12" cy="10" r="2.5"/>
+                </svg>
+                <span>Get coordinates</span>
+              </button>
+              <button id="measureDistanceButton" type="button">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="m3 17 4 4L21 7l-4-4L3 17Z"/>
+                  <path d="m7 13 2 2m1-6 2 2m1-6 2 2m1-6 2 2"/>
+                </svg>
+                <span>Measure distance</span>
+              </button>
+              <button id="cancelViewerToolButton" type="button">Cancel</button>
+            </div>
+            <div id="tilesViewerToolResult" aria-live="polite">Choose a tool, then click the model.</div>
+          </div>
+        </div>
+        <div id="tilesViewerContainer"></div>
+        <div id="tilesViewerStatus" role="status"></div>
+      </div>
+    </div>
   </div>
 
-  <script type="module">
-    const viewer = new Cesium.Viewer("cesiumContainer", {
-      baseLayer: false,
-      baseLayerPicker: false,
-      animation: false,
-      timeline: false,
-      geocoder: false
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    let map = null;
+    if (window.L) {
+      map = L.map('projectMap', { zoomControl: true }).setView([47.2061391,-1.5629426], 16);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors', maxZoom: 19
+      }).addTo(map);
+      const customMarkerIcon = L.divIcon({
+        html: `<div class="marker-wrapper"><div class="pin-icon"></div></div>`,
+        iconSize: [90, 50], popupAnchor: [0, -50], className: 'custom-marker'
+      });
+      L.marker([47.2061391,-1.5629426], { icon: customMarkerIcon })
+        .addTo(map).bindPopup('Project Location: W0632');
+      L.circle([47.2061391,-1.5629426], {
+        radius: 30, color: '#2563eb', weight: 2, opacity: 1, fill: true,
+        fillColor: '#2563eb', fillOpacity: 0.3, dashArray: '5, 5'
+      }).addTo(map);
+      L.circle([47.2061391,-1.5629426], {
+        radius: 120, color: '#2563eb', weight: 2, opacity: 0.7, fill: true,
+        fillColor: '#2563eb', fillOpacity: 0.15, dashArray: '5, 5'
+      }).addTo(map);
+      setTimeout(() => map.invalidateSize(), 100);
+    }
+
+    const siteVisit3dCard = document.getElementById('siteVisit3dCard');
+    const surroundingMapCard = document.getElementById('surroundingMapCard');
+    const tilesViewerContent = document.getElementById('tilesViewerContent');
+    const tilesViewerFullscreen = document.getElementById('tilesFullscreenButton');
+    const tilesViewerStatus = document.getElementById('tilesViewerStatus');
+    const getCoordinatesButton = document.getElementById('getCoordinatesButton');
+    const measureDistanceButton = document.getElementById('measureDistanceButton');
+    const cancelViewerToolButton = document.getElementById('cancelViewerToolButton');
+    const tilesViewerToolResult = document.getElementById('tilesViewerToolResult');
+    const tilesViewerTools = document.getElementById('tilesViewerTools');
+    const tilesViewerToolsToggle = document.getElementById('tilesViewerToolsToggle');
+    let tilesViewer = null;
+    let tilesViewerToolHandler = null;
+    let tilesViewerToolMode = null;
+    let tilesViewerToolPoints = [];
+    let tilesViewerToolEntities = [];
+    const TILESET_URL = './Scene/Production_3_3DTiles.json';
+
+    tilesViewerToolsToggle.addEventListener('click', () => {
+      const isExpanded = tilesViewerToolsToggle.getAttribute('aria-expanded') === 'true';
+      tilesViewerToolsToggle.setAttribute('aria-expanded', String(!isExpanded));
+      const label = isExpanded ? 'Show site tools' : 'Hide site tools';
+      tilesViewerToolsToggle.title = label;
+      tilesViewerToolsToggle.setAttribute('aria-label', label);
+      tilesViewerTools.classList.toggle('is-collapsed', isExpanded);
     });
 
-    let tool = null;
-    let measurePoints = [];
-    let temporaryGraphics = [];
-
-    const result = document.getElementById("result");
-
-    function clearTemporaryGraphics() {
-      temporaryGraphics.forEach((entity) => viewer.entities.remove(entity));
-      temporaryGraphics = [];
-      measurePoints = [];
+    function setActiveDiscoveryCard(card) {
+      document.querySelectorAll('.section .card.selected').forEach(item => item.classList.remove('selected'));
+      card.classList.add('selected');
     }
 
-    function getClickedPosition(screenPosition) {
-      const scene = viewer.scene;
+    function showSurroundingMap() {
+      setActiveDiscoveryCard(surroundingMapCard);
+      clearViewerToolGraphics();
+      tilesViewerContent.classList.remove('active', 'fullscreen-fallback');
+      if (document.fullscreenElement === tilesViewerContent && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+      if (tilesViewer) tilesViewer.resize();
+      if (map) setTimeout(() => map.invalidateSize(), 0);
+    }
 
-      // Prefer the actual visible surface, including 3D Tiles.
+    function clearViewerToolGraphics() {
+      if (tilesViewer && tilesViewer.entities) {
+        tilesViewerToolEntities.forEach(entity => tilesViewer.entities.remove(entity));
+      }
+      tilesViewerToolEntities = [];
+      tilesViewerToolPoints = [];
+      tilesViewerToolMode = null;
+      [getCoordinatesButton, measureDistanceButton].forEach(button => button.classList.remove('active'));
+      tilesViewerToolResult.textContent = '';
+    }
+
+    function setViewerToolMode(mode) {
+      clearViewerToolGraphics();
+      tilesViewerToolMode = mode;
+      (mode === 'coordinates' ? getCoordinatesButton : measureDistanceButton).classList.add('active');
+      tilesViewerToolResult.textContent = mode === 'coordinates'
+        ? 'Click the model to read coordinates.'
+        : 'Click two points on the model to measure distance.';
+    }
+
+    function pickViewerPosition(windowPosition) {
+      if (!tilesViewer || !windowPosition) return undefined;
+      const scene = tilesViewer.scene;
+      let position;
       if (scene.pickPositionSupported) {
-        const position = scene.pickPosition(screenPosition);
-        if (Cesium.defined(position)) return position;
+        try { position = scene.pickPosition(windowPosition); } catch (error) { console.debug('pickPosition unavailable', error); }
       }
-
-      // Fallback: intersection with the globe, if available.
-      const ray = viewer.camera.getPickRay(screenPosition);
-      return ray ? viewer.scene.globe.pick(ray, scene) : undefined;
+      if (!position && scene.globe) {
+        try { position = tilesViewer.camera.pickEllipsoid(windowPosition, scene.globe.ellipsoid); } catch (error) { console.debug('globe pick unavailable', error); }
+      }
+      return position;
     }
 
-    document.getElementById("coordsButton").onclick = () => {
-      clearTemporaryGraphics();
-      tool = "coordinates";
-      result.textContent = "Click a point on the model.";
-    };
-
-    document.getElementById("measureButton").onclick = () => {
-      clearTemporaryGraphics();
-      tool = "measure";
-      result.textContent = "Click two points on the model.";
-    };
-
-    document.getElementById("cancelButton").onclick = () => {
-      tool = null;
-      clearTemporaryGraphics();
-      result.textContent = "Tool cancelled.";
-    };
-
-    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-
-    handler.setInputAction((click) => {
-      if (!tool) return;
-
-      const position = getClickedPosition(click.position);
-      if (!position) {
-        result.textContent = "No surface found there. Try clicking directly on the model.";
-        return;
-      }
-
-      const cartographic = Cesium.Cartographic.fromCartesian(position);
-      const longitude = Cesium.Math.toDegrees(cartographic.longitude);
-      const latitude = Cesium.Math.toDegrees(cartographic.latitude);
-      const height = cartographic.height;
-
-      if (tool === "coordinates") {
-        result.textContent =
-          `Longitude: ${longitude.toFixed(7)}°, ` +
-          `Latitude: ${latitude.toFixed(7)}°, ` +
-          `Height: ${height.toFixed(2)} m`;
-
-        temporaryGraphics.push(viewer.entities.add({
-          position,
-          point: {
-            pixelSize: 10,
-            color: Cesium.Color.YELLOW,
-            outlineColor: Cesium.Color.BLACK,
-            outlineWidth: 2
-          }
-        }));
-
-        tool = null;
-        return;
-      }
-
-      measurePoints.push(position);
-
-      temporaryGraphics.push(viewer.entities.add({
+    function addViewerToolPoint(position, color) {
+      const entity = tilesViewer.entities.add({
         position,
-        point: {
-          pixelSize: 10,
-          color: Cesium.Color.CYAN,
-          outlineColor: Cesium.Color.BLACK,
-          outlineWidth: 2
-        }
-      }));
+        point: { pixelSize: 12, color, outlineColor: Cesium.Color.WHITE, outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY }
+      });
+      tilesViewerToolEntities.push(entity);
+      return entity;
+    }
 
-      if (measurePoints.length === 1) {
-        result.textContent = "First point set. Click the second point.";
+    function handleViewerToolClick(click) {
+      const position = pickViewerPosition(click.position);
+      if (!position || !tilesViewerToolMode) return;
+      if (tilesViewerToolMode === 'coordinates') {
+        clearViewerToolGraphics();
+        addViewerToolPoint(position, Cesium.Color.YELLOW);
+        const cartographic = Cesium.Cartographic.fromCartesian(position);
+        const coordinateLabel = tilesViewer.entities.add({
+          position,
+          label: {
+            text: `Lon: ${Cesium.Math.toDegrees(cartographic.longitude).toFixed(7)}°\nLat: ${Cesium.Math.toDegrees(cartographic.latitude).toFixed(7)}°\nH: ${cartographic.height.toFixed(2)} m`,
+            font: "5200px Inter, sans-serif",   // was "13px Inter, sans-serif"
+            scale: 0.0025,
+            backgroundPadding: new Cesium.Cartesian2(2800, 2000),
+            pixelOffset: new Cesium.Cartesian2(0, -18),
+            fillColor: Cesium.Color.fromCssColorString('#1f3d30'),
+            showBackground: true,
+            backgroundColor: Cesium.Color.WHITE.withAlpha(0.9),
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            heightReference: Cesium.HeightReference.NONE
+          }
+        });
+        tilesViewerToolEntities.push(coordinateLabel);
+        tilesViewerToolResult.textContent = `Longitude: ${Cesium.Math.toDegrees(cartographic.longitude).toFixed(7)}\nLatitude: ${Cesium.Math.toDegrees(cartographic.latitude).toFixed(7)}\nHeight: ${cartographic.height.toFixed(2)} m`;
+        tilesViewerToolMode = 'coordinates';
+        getCoordinatesButton.classList.add('active');
         return;
       }
-
-      const distance = Cesium.Cartesian3.distance(
-        measurePoints[0],
-        measurePoints[1]
-      );
-
-      temporaryGraphics.push(viewer.entities.add({
-        polyline: {
-          positions: measurePoints,
-          width: 3,
-          material: Cesium.Color.CYAN
-        }
-      }));
-
-      result.textContent = `Straight-line 3D distance: ${distance.toFixed(2)} m`;
-      tool = null;
-    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-    try {
-      const tileset = await Cesium.Cesium3DTileset.fromUrl(
-        "https://d270g48h41voqy.cloudfront.net/Scene/Production_3_3DTiles.json"
-      );
-
-      viewer.scene.primitives.add(tileset);
-      await viewer.zoomTo(tileset);
-      document.getElementById("status").textContent = "Tileset loaded";
-    } catch (error) {
-      console.error(error);
-      document.getElementById("status").textContent =
-        "Could not load tileset. Check the browser console and file paths.";
+      tilesViewerToolPoints.push(position);
+      addViewerToolPoint(position, Cesium.Color.CYAN);
+      if (tilesViewerToolPoints.length === 2) {
+        const distance = Cesium.Cartesian3.distance(tilesViewerToolPoints[0], tilesViewerToolPoints[1]);
+        const line = tilesViewer.entities.add({ polyline: { positions: tilesViewerToolPoints.slice(), width: 3, material: Cesium.Color.CYAN, clampToGround: false, depthFailMaterial: Cesium.Color.CYAN } });
+        tilesViewerToolEntities.push(line);
+        const midpoint = Cesium.Cartesian3.midpoint(tilesViewerToolPoints[0], tilesViewerToolPoints[1], new Cesium.Cartesian3());
+        const distanceLabel = tilesViewer.entities.add({
+          position: midpoint,
+          label: {
+            text: `${distance.toFixed(2)} m`,
+            font: '13px Inter, sans-serif',
+            fillColor: Cesium.Color.fromCssColorString('#1f3d30'),
+            showBackground: true,
+            backgroundColor: Cesium.Color.WHITE.withAlpha(0.9),
+            backgroundPadding: new Cesium.Cartesian2(7, 5),
+            pixelOffset: new Cesium.Cartesian2(0, -18),
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            heightReference: Cesium.HeightReference.NONE
+          }
+        });
+        tilesViewerToolEntities.push(distanceLabel);
+        tilesViewerToolResult.textContent = `Straight-line 3D distance: ${distance.toFixed(2)} m`;
+        tilesViewerToolMode = null;
+        measureDistanceButton.classList.remove('active');
+      } else {
+        tilesViewerToolResult.textContent = 'First point set. Click a second point.';
+      }
     }
+
+    function setupViewerToolHandler() {
+      if (tilesViewerToolHandler || !tilesViewer) return;
+      tilesViewerToolHandler = new Cesium.ScreenSpaceEventHandler(tilesViewer.scene.canvas);
+      tilesViewerToolHandler.setInputAction(handleViewerToolClick, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    }
+
+    async function initializeTilesViewer() {
+      if (tilesViewer) { setupViewerToolHandler(); tilesViewer.resize(); return tilesViewer; }
+      if (!window.Cesium) throw new Error('CesiumJS failed to load');
+      tilesViewer = new Cesium.Viewer('tilesViewerContainer', {
+        fullscreenButton: false,
+        homeButton: false,
+        baseLayerPicker: false,
+        baseLayer: false,
+        sceneModePicker: false,
+        navigationHelpButton: false,
+        geocoder: false,
+        animation: false,
+        timeline: false,
+        infoBox: false,
+        selectionIndicator: false,
+        contextOptions: { webgl: { alpha: true } },
+        terrainProvider: new Cesium.EllipsoidTerrainProvider()
+      });
+      tilesViewer.useBrowserRecommendedResolution = false;
+      tilesViewer.scene.postProcessStages.fxaa.enabled = false;
+      tilesViewer.scene.backgroundColor = Cesium.Color.TRANSPARENT;
+      if (tilesViewer.scene.skyBox) tilesViewer.scene.skyBox.show = false;
+      if (tilesViewer.scene.sun) tilesViewer.scene.sun.show = false;
+      if (tilesViewer.scene.moon) tilesViewer.scene.moon.show = false;
+      if (tilesViewer.scene.skyAtmosphere) tilesViewer.scene.skyAtmosphere.show = false;
+      if (tilesViewer.scene.globe) {
+        tilesViewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#d9dde3');
+        tilesViewer.scene.globe.show = false;
+      }
+      const tileset = await Cesium.Cesium3DTileset.fromUrl(TILESET_URL);
+      tilesViewer.scene.primitives.add(tileset);
+      await tilesViewer.zoomTo(tileset);
+      setupViewerToolHandler();
+      return tilesViewer;
+    }
+
+    async function openTilesViewer() {
+      setActiveDiscoveryCard(siteVisit3dCard);
+      tilesViewerContent.classList.add('active');
+      tilesViewerStatus.style.display = 'none';
+      try { await initializeTilesViewer(); }
+      catch (err) {
+        console.error('3D Site Visit failed:', err);
+        tilesViewerStatus.textContent = err.message;
+        tilesViewerStatus.style.display = 'block';
+      }
+      if (tilesViewer) tilesViewer.resize();
+    }
+
+    function closeTilesViewer() {
+      setActiveDiscoveryCard(surroundingMapCard);
+      clearViewerToolGraphics();
+      if (document.fullscreenElement === tilesViewerContent && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+      tilesViewerContent.classList.remove('active', 'fullscreen-fallback');
+      if (tilesViewer) tilesViewer.resize();
+    }
+
+    async function toggleTilesViewerFullscreen() {
+      if (document.fullscreenElement === tilesViewerContent) {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        return;
+      }
+      if (tilesViewerContent.classList.contains('fullscreen-fallback')) {
+        tilesViewerContent.classList.remove('fullscreen-fallback');
+        updateFullscreenButton();
+        return;
+      }
+      if (tilesViewerContent.requestFullscreen) {
+        try { await tilesViewerContent.requestFullscreen(); }
+        catch (err) {
+          tilesViewerContent.classList.add('fullscreen-fallback');
+          updateFullscreenButton();
+        }
+      } else {
+        tilesViewerContent.classList.add('fullscreen-fallback');
+        updateFullscreenButton();
+      }
+      if (tilesViewer) tilesViewer.resize();
+    }
+
+    function updateFullscreenButton() {
+      const isFullscreen = document.fullscreenElement === tilesViewerContent || tilesViewerContent.classList.contains('fullscreen-fallback');
+      tilesViewerFullscreen.classList.toggle('is-fullscreen', isFullscreen);
+      tilesViewerFullscreen.title = isFullscreen ? 'Exit full screen' : 'Full screen';
+      tilesViewerFullscreen.setAttribute('aria-label', isFullscreen ? 'Exit full screen' : 'Full screen');
+      if (tilesViewer) tilesViewer.resize();
+    }
+
+    getCoordinatesButton.addEventListener('click', () => setViewerToolMode('coordinates'));
+    measureDistanceButton.addEventListener('click', () => setViewerToolMode('measure'));
+    cancelViewerToolButton.addEventListener('click', clearViewerToolGraphics);
+    siteVisit3dCard.addEventListener('click', openTilesViewer);
+    surroundingMapCard.addEventListener('click', showSurroundingMap);
+    tilesViewerFullscreen.addEventListener('click', toggleTilesViewerFullscreen);
+    document.addEventListener('fullscreenchange', updateFullscreenButton);
+    // Preserve the clickable appearance of links without allowing navigation.
+    document.querySelectorAll('a[href]').forEach(link => {
+      link.addEventListener('click', event => event.preventDefault());
+    });
   </script>
 </body>
 </html>
