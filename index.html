@@ -11,9 +11,6 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <!-- CesiumJS -->
-  <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.122/Build/Cesium/Widgets/widgets.css">
-
   <style>
     :root {
       --primary-900: #0a5c3a;
@@ -30,7 +27,6 @@
       --sidebar-width: 320px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    button { cursor: pointer; }
     html, body { width: 100%; height: 100%; overflow: hidden; }
     body {
       font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -38,7 +34,7 @@
       color: var(--text);
       background: var(--bg);
     }
-    .app { display: flex; width: 100%; height: 100vh; overflow: hidden; }
+    .app { display: flex; width: 100%; height: 100%; }
     .icon-rail {
       width: 44px;
       flex: 0 0 44px;
@@ -77,8 +73,7 @@
     .sidebar {
       width: var(--sidebar-width);
       flex: 0 0 var(--sidebar-width);
-      height: 100vh;
-      min-height: 0;
+      height: 100%;
       background: var(--white);
       border-right: 1px solid var(--border);
       display: flex;
@@ -395,8 +390,6 @@
     }
     .viewer {
       flex: 1;
-      min-width: 0;
-      min-height: 0;
       height: 100%;
       background: #e8edf0;
       display: flex;
@@ -416,84 +409,6 @@
     .viewer-content.active {
       display: flex;
     }
-    #tilesViewerContent {
-      position: absolute; inset: 0; z-index: 20;
-      background: #111;
-    }
-    #tilesViewerContent.fullscreen-fallback {
-      position: fixed; inset: 0; z-index: 9999;
-      width: 100vw; height: 100vh;
-    }
-    #tilesViewerContent .tiles-viewer-toolbar {
-      position: absolute; top: 16px; right: 16px; z-index: 1002;
-      display: flex; gap: 8px;
-    }
-    #tilesViewerContent .tiles-viewer-toolbar button {
-      font: inherit; cursor: pointer;
-    }
-    #tilesFullscreenButton {
-      width: 40px; height: 40px; padding: 0;
-      display: inline-flex; align-items: center; justify-content: center;
-      background: #c8f2dc; color: #1f5c43;
-      border: 1px solid #a3e4c3; border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(31, 92, 67, .16);
-    }
-    #tilesFullscreenButton:hover { background: #b0ebcc; }
-    #tilesFullscreenButton .icon-exit { display: none; }
-    #tilesFullscreenButton.is-fullscreen .icon-enter { display: none; }
-    #tilesFullscreenButton.is-fullscreen .icon-exit { display: block; }
-
-    #tilesViewerTools {
-      position: absolute; top: 16px; left: 16px; z-index: 1002;
-      width: min(280px, calc(100% - 88px)); padding: 12px;
-      background: #fff; border: 1px solid #d9eee3; border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(31, 92, 67, .14);
-      color: #1f3d31;
-    }
-    #tilesViewerTools .tools-header {
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
-      min-height: 22px;
-    }
-    #tilesViewerTools .tools-heading {
-      margin: 0; font-size: 12px; font-weight: 700;
-      letter-spacing: .04em; text-transform: uppercase; color: #376b54;
-    }
-    #tilesViewerTools .tools-toggle {
-      width: 24px; height: 24px; padding: 2px; display: inline-flex;
-      align-items: center; justify-content: center; border: 0; background: transparent;
-      color: #1f5c43; cursor: pointer; border-radius: 5px;
-    }
-    #tilesViewerTools .tools-toggle:hover { background: #c8f2dc; }
-    #tilesViewerTools .tools-toggle svg { transition: transform .15s ease; }
-    #tilesViewerTools.is-collapsed .tools-toggle svg { transform: rotate(-90deg); }
-    #tilesViewerTools .tools-body { margin-top: 9px; }
-    #tilesViewerTools.is-collapsed .tools-body { display: none; }
-    #tilesViewerTools .tools-actions { display: flex; flex-direction: column; gap: 7px; }
-    #tilesViewerTools .tools-actions button {
-      width: 100%; display: inline-flex; align-items: center; justify-content: flex-start; gap: 7px;
-      border: 1px solid #b9dec9; border-radius: 7px; padding: 7px 9px;
-      background: #f5fbf7; color: #1f5c43; font: inherit; font-size: 12px;
-      cursor: pointer; transition: background .15s ease, border-color .15s ease;
-    }
-    #tilesViewerTools .tools-actions button:hover, #tilesViewerTools .tools-actions button.active {
-      background: #c8f2dc; border-color: #a3e4c3;
-    }
-    #tilesViewerTools .tools-actions svg { flex: 0 0 auto; }
-    #tilesViewerToolResult {
-      display: block; width: 100%; min-height: calc(1.4em * 3 + 14px); margin-top: 9px;
-      padding: 7px 8px; box-sizing: border-box; overflow: hidden; resize: none;
-      outline: none; user-select: text; cursor: default; white-space: pre-line;
-      border: 1px solid #d7e8df; border-radius: 7px; background: #f4fbf7;
-      color: #315748; font: inherit; font-size: 11px; line-height: 1.4;
-    }
-
-    #tilesViewerContainer {
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(to bottom, #6fa8dc 0%, #dbeefc 100%);
-    }
-    #tilesViewerStatus { position: absolute; top: 12px; left: 12px; z-index: 2; padding: 8px 10px; background: rgba(255,255,255,.9); border-radius: 4px; display: none; }
-
 
     .viewer iframe {
       width: 100%;
@@ -514,6 +429,58 @@
       width: 100%;
       height: 100%;
       position: relative;
+      overflow: hidden;
+      --sd-navy: #141c4d;
+      --shapediver-cover-height: 375px;
+      --shapediver-cover-width: 220px;
+      /* Small round cover above Shapemaker's "collapse sidebar" button */
+      --sd-dot-size: 28px;
+      --sd-dot-top: 55px;
+      --sd-dot-left: 205px;
+    }
+
+    /* ShapeDiver's cross-origin UI cannot be styled from this page. These
+       non-interactive covers hide its corner branding instead. */
+    .shapediver-cover {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: var(--shapediver-cover-width);
+      height: var(--shapediver-cover-height);
+      background: var(--sd-navy);
+      pointer-events: auto;      /* intercept clicks/hover so they do not reach the iframe */
+      z-index: 5;
+      opacity: 0;
+      animation: shapediver-cover-fade-in 0.1s ease 0.6s both;
+    }
+    /* Small round panel sitting just above the collapse-sidebar button */
+    .shapediver-cover-dot {
+      position: absolute;
+      top: var(--sd-dot-top);
+      left: var(--sd-dot-left);
+      width: var(--sd-dot-size);
+      height: var(--sd-dot-size);
+      border-radius: 50%;
+      background: #ffffff;
+      pointer-events: auto;
+      z-index: 4;
+      opacity: 0;
+      animation: shapediver-cover-fade-in 0.1s ease 0.6s both;
+    }
+
+    @keyframes shapediver-cover-fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* Keep the covers attached to the viewer if this host container is
+       expanded/fullscreen by a surrounding implementation. */
+    #shapediverViewerContent:fullscreen {
+      background: var(--white);
+    }
+
+    #shapediverViewerContent:fullscreen .shapediver-cover {
+      --shapediver-cover-height: clamp(90px, 5.8vw, 110px);
     }
 
     .viewer-mask {
@@ -603,6 +570,39 @@
       top: 0px;
     }
 
+
+    .version-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #eafaf1;
+      border: 1.5px solid var(--primary-700);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 11px;
+      color: var(--primary-800);
+      font-weight: 600;
+      transition: all 0.15s;
+      width: 100%;
+      justify-content: flex-start;
+      font-family: inherit;
+      margin-top: 14px;
+    }
+    .version-btn:hover {
+      background: var(--primary-700);
+      border-color: var(--primary-800);
+      color: white;
+    }
+    .version-btn:hover svg {
+      color: white;
+    }
+    .version-btn svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      color: var(--primary-700);
+    }
     @keyframes versionUpdatePulse {
       0% {
         box-shadow: 0 0 0 0 rgba(18, 130, 85, 0.6);
@@ -622,6 +622,13 @@
       }
     }
 
+    .version-btn.version-updated {
+      animation: versionUpdatePulse 1.1s ease-out;
+    }
+
+    .version-badge.badge-updated {
+      animation: badgePop 0.5s ease-out;
+    }
 
     @keyframes badgePop {
       0% {
@@ -635,7 +642,15 @@
         transform: scale(1);
       }
     }
-
+    .version-badge {
+      background: var(--primary-800);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-left: auto;
+    }
     .modal-overlay {
       display: none;
       position: fixed;
@@ -664,7 +679,16 @@
       overflow: hidden;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
-
+    .version-modal {
+      background: var(--white);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
     .modal-header {
       padding: 20px;
       border-bottom: 1px solid var(--border);
@@ -695,7 +719,56 @@
     .modal-close-btn:hover {
       color: var(--text);
     }
-
+    .version-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+    .version-item {
+      padding: 12px;
+      margin-bottom: 8px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .version-item:hover {
+      border-color: var(--primary-700);
+      background: #f6fdf9;
+    }
+    .version-item.selected {
+      border-color: var(--primary-800);
+      background: #f0f8f4;
+    }
+    .version-item-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .version-item-badge {
+      background: var(--primary-700);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .version-item-date {
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: auto;
+    }
+    .version-item-author {
+      font-size: 10px;
+      color: var(--text-light);
+      margin-bottom: 4px;
+    }
+    .version-item-description {
+      font-size: 10px;
+      color: var(--text-light);
+      line-height: 1.4;
+    }
     .modal-footer {
       padding: 16px 20px;
       border-top: 1px solid var(--border);
@@ -823,7 +896,37 @@
     }
 
     /* Adjust new-version-btn to fit inline next to title instead of full width */
-
+    .new-version-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: #fdf1ea;
+      border: 1.5px solid var(--orange-accent);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 10.5px;
+      color: var(--orange-accent);
+      font-weight: 600;
+      transition: all 0.15s;
+      width: auto;
+      flex-shrink: 0;
+      font-family: inherit;
+    }
+    .new-version-btn:hover {
+      background: var(--orange-accent);
+      border-color: #a04f22;
+      color: white;
+    }
+    .new-version-btn:hover svg {
+      color: white;
+    }
+    .new-version-btn svg {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      color: var(--orange-accent);
+    }
 
     .new-version-modal {
       width: 480px;
@@ -1328,15 +1431,148 @@
       color: var(--muted);
     }
 
+    /* Mini traffic lights inside version history items */
+    .version-item-tl {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .version-item-tl-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .version-item-tl-bulb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
     .version-item-tl-bulb.green { background: #2ecc71; box-shadow: 0 0 4px rgba(46,204,113,0.5); }
     .version-item-tl-bulb.red   { background: #e74c3c; box-shadow: 0 0 4px rgba(231,76,60,0.4); }
     .version-item-tl-bulb.off   { background: #d5d5d5; }
+    .version-item-tl-label {
+      font-size: 9.5px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .mini-bulb {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .mini-bulb-off   { background: #d5d5d5; }
+    .mini-bulb-green { background: #2ecc71; box-shadow: 0 0 4px rgba(46,204,113,0.5); }
+    .mini-bulb-red   { background: #e74c3c; box-shadow: 0 0 4px rgba(231,76,60,0.4); }
 
 
-  </style></style>
-  <script src="https://cesium.com/downloads/cesiumjs/releases/1.122/Build/Cesium/Cesium.js"></script>
+    /* ---------- Demo login ---------- */
+    body.locked .app { visibility: hidden; }
+    .login-screen {
+      position: fixed; inset: 0; z-index: 5000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px; background: var(--bg);
+    }
+    body:not(.locked) .login-screen { display: none; }
+    .login-card {
+      width: 100%; max-width: 360px; background: var(--white);
+      border: 1px solid var(--border); border-radius: 12px;
+      padding: 28px 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    }
+    .login-logo { width: 36px; height: 36px; object-fit: contain; margin-bottom: 14px; }
+    .login-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .login-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 22px; }
+    .login-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .login-field label { font-size: 12px; font-weight: 600; color: var(--text-light); }
+    .login-field input {
+      border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+      font-size: 13px; font-family: inherit;
+    }
+    .login-field input:focus { outline: none; border-color: var(--primary-700); }
+    .login-error { display: none; font-size: 12px; color: #c0392b; margin-bottom: 12px; }
+    .login-btn {
+      width: 100%; padding: 11px; background: var(--primary-800); color: #fff;
+      border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
+      font-family: inherit; cursor: pointer;
+    }
+    .login-btn:hover { background: var(--primary-900); }
+    .login-btn:disabled { opacity: 0.7; cursor: wait; }
+    .logout-rail-btn { margin-top: auto; }
+
+    /* ---------- Shapemaker login mask ----------
+       Shapemaker's page is cross-origin and cannot be restyled, so while its
+       login screen shows we cover everything except the login card with mint.
+       Card geometry (measured on app.shapemaker.io/login):
+         width 400px, centred; top = 14% of frame height + 86.9px logo + 40px. */
+    .sm-login-mask {
+      position: absolute; inset: 0; z-index: 6;
+      overflow: hidden; pointer-events: none; display: none;
+    }
+    .sm-login-mask.active { display: block; }
+    .sm-login-hole {
+      position: absolute; border-radius: 16px;
+      box-shadow: 0 0 0 200vmax #eafaf1;
+    }
+    /* Sign-in instruction shown under the login card */
+    .sm-login-info {
+      position: absolute; transform: translateX(-50%);
+      width: 360px; text-align: center; pointer-events: none;
+      font-family: inherit; color: var(--primary-900);
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .sm-login-info-title { font-size: 14px; font-weight: 700; letter-spacing: 0.2px; }
+    .sm-login-info-body { font-size: 12.5px; font-weight: 500; line-height: 1.55; color: #2f5d4a; }
+    .sm-login-info b { font-weight: 700; color: var(--primary-900); }
+
+    /* ---------- Loading animation (Acernis mark) ---------- */
+    .sm-loader {
+      position: absolute; inset: 0; z-index: 7; display: none;
+      flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+      background: #eafaf1; pointer-events: auto;
+    }
+    .sm-loader.active { display: flex; }
+    .sm-loader-box { position: relative; width: 92px; height: 92px; display: grid; place-items: center; }
+    .sm-loader-ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 4px solid rgba(10, 92, 58, 0.15); border-top-color: #0a5c3a;
+      animation: sm-spin 0.9s linear infinite;
+    }
+    .sm-loader-logo {
+      width: 48px; height: 48px; object-fit: contain;
+      animation: sm-pulse 1.4s ease-in-out infinite;
+    }
+    .sm-loader-text { font-size: 14px; font-weight: 600; color: #0a5c3a; letter-spacing: 0.2px; }
+    @keyframes sm-spin { to { transform: rotate(360deg); } }
+    @keyframes sm-pulse {
+      0%, 100% { opacity: 0.5; transform: scale(0.88); }
+      50%      { opacity: 1;   transform: scale(1); }
+    }
+  </style>
 </head>
-<body>
+<body class="locked">
+
+  <!-- Demo login (credentials are never stored in this file) -->
+  <div class="login-screen" id="loginScreen">
+    <form class="login-card" id="loginForm" autocomplete="off">
+      <img src="icon.png" alt="Acernis" class="login-logo">
+      <div class="login-title">Sign in</div>
+      <div class="login-subtitle">Acernis Project Viewer demo</div>
+      <div class="login-field">
+        <label for="loginUser">Username</label>
+        <input type="text" id="loginUser" required />
+      </div>
+      <div class="login-field">
+        <label for="loginPass">Password</label>
+        <input type="password" id="loginPass" required />
+      </div>
+      <div class="login-error" id="loginError">Incorrect username or password.</div>
+      <button type="submit" class="login-btn" id="loginBtn">Log in</button>
+    </form>
+  </div>
 
   <div class="app">
 
@@ -1378,6 +1614,13 @@
           <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
         </svg>
       </button>
+      <button class="rail-btn logout-rail-btn" id="logoutBtn" title="Log out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </button>
     </div>
 
     <!-- Sidebar panel -->
@@ -1385,7 +1628,7 @@
 
       <!-- Cover image -->
       <div class="cover-section">
-        <img src="project-cover.png" alt="Project cover" class="cover-image">
+        <img src="project%20cover.png" alt="Project cover" class="cover-image">
         <button class="back-btn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -1434,17 +1677,38 @@
 
       <div class="sidebar-header">
         <div class="project-title-row">
-          <div class="project-code">Acernis Demo</div>
+          <div class="project-code">5657-H_DE-TIMS-060317</div>
+          <button class="new-version-btn" id="newVersionBtn" title="Create a new version">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>New Version</span>
+          </button>
         </div>
-        <div class="project-meta">Created by Operations Acernis on 12 Oct 2026</div>
-        <div class="project-address">40 Rue la Tour d'Auvergne, 44200 Nantes, France</div>
-        <div class="project-coords">Coordinates: 47.2061391,-1.5629426</div>
+        <div class="project-meta">Created by Operations Acernis on 22 Sep 2026</div>
+        <div class="project-address">Wasserkrüger Weg 127, 23879 Mölln, DE</div>
+        <div class="project-coords">Coordinates: 53.6152342, 10.6909497</div>
+        <!-- Version Button -->
+        <button class="version-btn" id="versionBtn" title="View version history">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>Version History</span>
+          <span class="mini-traffic-lights" id="miniTrafficLights">
+            <span class="mini-bulb mini-bulb-off" id="mini-tl-los" title="LOS"></span>
+            <span class="mini-bulb mini-bulb-off" id="mini-tl-emf" title="EMF"></span>
+            <span class="mini-bulb mini-bulb-off" id="mini-tl-prestatic" title="Prestatic"></span>
+          </span>
+          <span class="version-badge">Rev. D</span>
+        </button>
       </div>
 
       <div class="badges">
         <div class="badge">
-          <img src="Logo.jpg" alt="Logo" class="badge-icon">
-          Swisscom
+          <img src="vodafone-Logo.png" alt="Vodafone" class="badge-icon">
+          Vodafone
         </div>
         <div class="badge">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1456,7 +1720,7 @@
             <path d="M9.5 18h5"></path>
             <path d="M12 18v4"></path>
           </svg>
-          Building Rooftop
+          Building rooftop
         </div>
       </div>
 
@@ -1467,7 +1731,7 @@
           <div class="info-icon">i</div>
         </div>
         <div class="card-row">
-          <div class="card selected" id="surroundingMapCard">
+          <div class="card selected">
             <svg viewBox="64 64 896 896" focusable="false" fill="currentColor">
               <path d="M512 64c-181.08 0-328 146.92-328 328 0 194.98 175.63 366.02 313.72 494.75a19.86 19.86 0 0028.56 0C664.37 758.02 840 586.98 840 392c0-181.08-146.92-328-328-328zm0 480a152 152 0 110-304 152 152 0 010 304z"></path>
             </svg>
@@ -1496,7 +1760,7 @@
           <div class="info-icon">i</div>
         </div>
         <div class="card-row">
-          <div class="card" id="siteVisit3dCard">
+          <div class="card">
             <svg viewBox="64 64 896 896" focusable="false" fill="currentColor">
               <path d="M464 144H160c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V160c0-8.8-7.2-16-16-16zm-52 268H212V212h200v200zm452-268H560c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V160c0-8.8-7.2-16-16-16zm-52 268H612V212h200v200zM464 544H160c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V560c0-8.8-7.2-16-16-16zm-52 268H212V612h200v200zm452-268H560c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V560c0-8.8-7.2-16-16-16zm-52 268H612V612h200v200z"></path>
             </svg>
@@ -1559,6 +1823,47 @@
         </div>
       </div>
 
+      <!-- Integrate -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title"><span class="label-highlight">Integrate</span> with your tools.</span>
+          <div class="info-icon">i</div>
+        </div>
+        <div class="card-row">
+          <div class="card">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"></circle>
+              <circle cx="12" cy="12" r="5"></circle>
+              <circle cx="12" cy="12" r="9"></circle>
+            </svg>
+            <div class="card-label">FieldFX</div>
+            <div class="card-sublabel">EMF Data Export</div>
+          </div>
+          <div class="card">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.9 16.1C1 12.2 1 5.8 4.9 1.9"></path>
+              <path d="M7.8 4.7a6.14 6.14 0 0 0-.8 7.5"></path>
+              <circle cx="12" cy="9" r="2"></circle>
+              <path d="M16.2 4.8c2 2 2.26 5.11.8 7.47"></path>
+              <path d="M19.1 1.9a9.96 9.96 0 0 1 0 14.2"></path>
+              <path d="M9.5 18h5"></path>
+              <path d="M12 18v4"></path>
+            </svg>
+            <div class="card-label">Mobile Planner</div>
+            <div class="card-sublabel">ArcGIS Proj</div>
+          </div>
+          <div class="card" id="structuralCard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16"></path>
+              <path d="M4 20h16"></path>
+              <path d="M12 4v16"></path>
+            </svg>
+            <div class="card-label">Static<br>Pre-check</div>
+            <div class="card-sublabel">FEA Analysis</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Chat -->
       <div class="chat-section">
         <div class="chat-header">
@@ -1584,338 +1889,1450 @@
       <div class="default-viewer">
         <div id="projectMap"></div>
       </div>
-      <div class="viewer-content" id="tilesViewerContent">
-        <div class="tiles-viewer-toolbar">
-          <button id="tilesFullscreenButton" class="tiles-icon-button" type="button"
-                  title="Full screen" aria-label="Full screen">
-            <svg class="icon-enter" viewBox="0 0 24 24" width="20" height="20" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
-            </svg>
-            <svg class="icon-exit" viewBox="0 0 24 24" width="20" height="20" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>
-            </svg>
-          </button>
-        </div>
-        <div id="tilesViewerTools" aria-label="3D viewer tools">
-          <div class="tools-header">
-            <p class="tools-heading">Measurement tools</p>
-            <button id="tilesViewerToolsToggle" class="tools-toggle" type="button" aria-expanded="true"
-                    aria-controls="tilesViewerToolsBody" title="Hide site tools" aria-label="Hide site tools">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="m6 9 6 6 6-6"/>
-              </svg>
-            </button>
+
+      <div class="viewer-content" id="viewerContent">
+        <iframe
+          title="Project Viewer"
+          id="mainViewerIframe"
+          src=""
+          allow="fullscreen; xr-spatial-tracking; accelerometer; gyroscope; clipboard-write; autoplay"
+          referrerpolicy="origin"
+        ></iframe>
+        <div class="viewer-mask" id="viewerMask"></div>
+      </div>
+      <div class="viewer-content" id="feaViewerContent">
+        <canvas id="feaCanvas"></canvas>
+        <div class="viewer-mask" id="feaViewerMask"></div>
+      </div>
+      <div class="viewer-content" id="shapediverViewerContent">
+        <iframe
+          title="Structural Analysis Viewer"
+          id="shapediverViewerIframe"
+          src=""
+          allow="clipboard-write; fullscreen; xr-spatial-tracking; accelerometer; gyroscope"
+          referrerpolicy="origin"
+          style="width:100%; height:100%; border:0;"
+        ></iframe>
+        <div class="shapediver-cover" aria-hidden="true"></div>
+        <div class="shapediver-cover-dot" aria-hidden="true"></div>
+        <div class="sm-login-mask" id="smLoginMask">
+          <div class="sm-login-hole" id="smLoginHole"></div>
+          <div class="sm-login-info" id="smLoginInfo">
+            <span class="sm-login-info-title">Sign in to continue</span>
+            <span class="sm-login-info-body">Sign in with the email <b>ops@acernis.fr</b> and your password, then press <b>Enter</b> to open the Static&nbsp;Pre-check tool.</span>
           </div>
-          <div id="tilesViewerToolsBody" class="tools-body">
-            <div class="tools-actions">
-              <button id="getCoordinatesButton" type="button">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/>
-                  <circle cx="12" cy="10" r="2.5"/>
-                </svg>
-                <span>Get coordinates</span>
-              </button>
-              <button id="measureDistanceButton" type="button">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="m3 17 4 4L21 7l-4-4L3 17Z"/>
-                  <path d="m7 13 2 2m1-6 2 2m1-6 2 2m1-6 2 2"/>
-                </svg>
-                <span>Measure distance</span>
-              </button>
-              <button id="cancelViewerToolButton" type="button">Cancel</button>
+        </div>
+        <div class="sm-loader" id="smLoader">
+          <div class="sm-loader-box">
+            <div class="sm-loader-ring"></div>
+            <img class="sm-loader-logo" src="icon.png" alt="">
+          </div>
+          <div class="sm-loader-text">Loading the Static Pre-check tool…</div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Version History Modal -->
+    <div class="modal-overlay" id="versionModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Version History</h2>
+          <button class="modal-close-btn" id="modalCloseBtn">&times;</button>
+        </div>
+
+        <div class="version-list" id="versionList">
+        <div class="version-item selected" data-version="Rev. D">
+          <div class="version-item-header">
+            <span class="version-item-badge">Rev. D</span>
+            <span class="version-item-date">Jul 29, 2026</span>
+          </div>
+          <div class="version-item-author">Updated by Sarah Stone</div>
+          <div class="version-item-description">Added new mast AT3 (18m), reconfigured antenna sectors to 0° / 120° / 240°, updated RF exposure zone.</div>
+          <div class="version-item-tl">
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb green"></span>
+              <span class="version-item-tl-label">LOS</span>
             </div>
-            <div id="tilesViewerToolResult" aria-live="polite">Choose a tool, then click the model.</div>
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb green"></span>
+              <span class="version-item-tl-label">EMF</span>
+            </div>
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb green"></span>
+              <span class="version-item-tl-label">Prestatic</span>
+            </div>
           </div>
         </div>
-        <div id="tilesViewerContainer"></div>
-        <div id="tilesViewerStatus" role="status"></div>
+
+        <div class="version-item" data-version="Rev. C">
+          <div class="version-item-header">
+            <span class="version-item-badge">Rev. C</span>
+            <span class="version-item-date">Jun 15, 2026</span>
+          </div>
+          <div class="version-item-author">Updated by Tom Baker</div>
+          <div class="version-item-description">Removed legacy Systemtechnik cabinet, replaced with new RRU housing and updated cable routing.</div>
+          <div class="version-item-tl">
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb green"></span>
+              <span class="version-item-tl-label">LOS</span>
+            </div>
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb red"></span>
+              <span class="version-item-tl-label">EMF</span>
+            </div>
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb green"></span>
+              <span class="version-item-tl-label">Prestatic</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="version-item" data-version="Rev. B">
+          <div class="version-item-header">
+            <span class="version-item-badge">Rev. B</span>
+            <span class="version-item-date">Apr 3, 2026</span>
+          </div>
+          <div class="version-item-author">Updated by Jim Morris</div>
+          <div class="version-item-description">Structural load analysis completed for rooftop mount; FEM model added for antenna AT1 and AT2.</div>
+          <div class="version-item-tl">
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb green"></span>
+              <span class="version-item-tl-label">LOS</span>
+            </div>
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb red"></span>
+              <span class="version-item-tl-label">EMF</span>
+            </div>
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb red"></span>
+              <span class="version-item-tl-label">Prestatic</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="version-item" data-version="Rev. A">
+          <div class="version-item-header">
+            <span class="version-item-badge">Rev. A</span>
+            <span class="version-item-date">Mar 14, 2024</span>
+          </div>
+          <div class="version-item-author">Created by Ann Heather</div>
+          <div class="version-item-description">Site survey completed and rooftop installation registered for Vodafone network expansion.</div>
+          <div class="version-item-tl">
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb red"></span>
+              <span class="version-item-tl-label">LOS</span>
+            </div>
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb red"></span>
+              <span class="version-item-tl-label">EMF</span>
+            </div>
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb red"></span>
+              <span class="version-item-tl-label">Prestatic</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+        <div class="modal-footer">
+          <button class="modal-btn modal-btn-secondary" id="compareBtn">Compare</button>
+          <button class="modal-btn modal-btn-primary" id="loadBtn">Load Version</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Modal -->
+    <div class="modal-overlay" id="compareModal">
+      <div class="modal compare-modal">
+        <div class="modal-header">
+          <h2>Compare Versions</h2>
+          <button class="modal-close-btn" id="compareModalCloseBtn">&times;</button>
+        </div>
+        <div class="compare-subtitle" id="compareSubtitle">
+          Comparing <span id="compareFromVersion">Rev. C</span> vs <span id="compareToVersion">Rev. D (Current)</span>
+        </div>
+        <div class="compare-table-wrapper">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>Equipment / Component</th>
+                <th>Change</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="compareTableBody">
+              <!-- Rows injected dynamically -->
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button class="modal-btn modal-btn-secondary" id="compareModalCloseBtn2">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Version Upload Modal -->
+    <div class="modal-overlay" id="newVersionModal">
+      <div class="modal new-version-modal">
+        <div class="modal-header">
+          <h2>Upload New Version</h2>
+          <button class="modal-close-btn" id="newVersionModalCloseBtn">&times;</button>
+        </div>
+
+        <div class="new-version-body">
+          <label class="upload-dropzone" id="ifcDropzone" for="ifcFileInput">
+            <input type="file" id="ifcFileInput" accept=".ifc" hidden />
+
+            <div class="upload-idle-state" id="uploadIdleState">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <div class="upload-title">Drop your .IFC file here</div>
+            </div>
+
+            <div class="upload-file-state" id="uploadFileState" style="display:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <div class="upload-file-name" id="uploadFileName">model.ifc</div>
+              <div class="upload-file-size" id="uploadFileSize">2.4 MB</div>
+              <button class="upload-remove-btn" id="uploadRemoveBtn" type="button">Remove file</button>
+            </div>
+          </label>
+
+          <div class="upload-error" id="uploadError" style="display:none;">
+            Please select a valid .IFC file.
+          </div>
+
+          <div class="new-version-field">
+            <label class="field-label" for="newVersionLabel">Version label</label>
+            <input type="text" id="newVersionLabel" class="field-input" placeholder="e.g. Rev. E" />
+          </div>
+
+          <div class="new-version-field">
+            <label class="field-label" for="newVersionNotes">Change description</label>
+            <textarea id="newVersionNotes" class="field-textarea" rows="3" placeholder="Describe what changed in this version..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="modal-btn modal-btn-secondary" id="newVersionCancelBtn">Cancel</button>
+          <button class="modal-btn modal-btn-primary" id="newVersionConfirmBtn" disabled>Upload Version</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- IFC Validation/Processing Modal -->
+    <div class="modal-overlay" id="ifcValidationModal">
+      <div class="modal validation-modal">
+        <div class="modal-header">
+          <h2 id="validationModalTitle">Validating IFC Model</h2>
+          <button class="modal-close-btn" id="validationCloseBtn" style="display:none;">&times;</button>
+        </div>
+
+        <div class="validation-body">
+
+          <!-- Scanning state -->
+          <div class="validation-scanning" id="validationScanning">
+            <div class="progress-wheel-wrap">
+              <svg class="progress-wheel" viewBox="0 0 100 100">
+                <circle class="progress-wheel-bg" cx="50" cy="50" r="42"></circle>
+                <circle class="progress-wheel-fg" id="progressWheelFg" cx="50" cy="50" r="42"></circle>
+              </svg>
+              <div class="progress-wheel-pct" id="progressWheelPct">0%</div>
+            </div>
+            <div class="validation-status-text" id="validationStatusText">Reading IFC schema...</div>
+            <div class="validation-file-label" id="validationFileLabel">model.ifc</div>
+          </div>
+
+          <!-- Results state -->
+          <div class="validation-results" id="validationResults" style="display:none; width: 100%;">
+
+            <!-- 1. Traffic lights FIRST -->
+            <div class="traffic-light-section" id="trafficLightSection">
+              <div class="traffic-light-header">Use Case Readiness</div>
+
+              <div class="traffic-light-row">
+                <div class="tl-indicator">
+                  <div class="tl-bulb tl-off" id="tl-los-bulb">—</div>
+                  <div class="tl-label">LOS</div>
+                  <div class="tl-sublabel">Line of Sight</div>
+                </div>
+
+                <div class="tl-indicator">
+                  <div class="tl-bulb tl-off" id="tl-emf-bulb">—</div>
+                  <div class="tl-label">EMF</div>
+                  <div class="tl-sublabel">Exposure</div>
+                </div>
+
+                <div class="tl-indicator">
+                  <div class="tl-bulb tl-off" id="tl-prestatic-bulb">—</div>
+                  <div class="tl-label">Prestatic</div>
+                  <div class="tl-sublabel">Assessment</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Checklist SECOND (middle) -->
+            <div class="validation-checklist" id="validationChecklist">
+              <!-- Checklist items injected via JS -->
+            </div>
+
+            <!-- 3. Metrics grid THIRD (bottom) -->
+            <div class="validation-metrics-grid">
+              <div class="metric-card metric-good">
+                <div class="metric-value" id="metricRecognized">0</div>
+                <div class="metric-label">Recognized Elements</div>
+              </div>
+              <div class="metric-card metric-warn">
+                <div class="metric-value" id="metricUnclassified">0</div>
+                <div class="metric-label">Unclassified Elements</div>
+              </div>
+              <div class="metric-card metric-bad">
+                <div class="metric-value" id="metricMissing">0</div>
+                <div class="metric-label">Missing Required Elements</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer" id="validationFooter" style="display:none;">
+          <button class="modal-btn modal-btn-secondary" id="validationCancelBtn">Cancel Upload</button>
+          <button class="modal-btn modal-btn-primary" id="validationProceedBtn">Proceed with Version</button>
+        </div>
+      </div>
+    </div>
+
+
+
+  </div>
+
+  <!-- IFC Validation/Processing Modal -->
+  <div class="modal-overlay" id="ifcValidationModal">
+    <div class="modal validation-modal">
+      <div class="modal-header">
+        <h2 id="validationModalTitle">Validating IFC Model</h2>
+        <button class="modal-close-btn" id="validationCloseBtn" style="display:none;">&times;</button>
+      </div>
+
+      <div class="validation-body">
+
+        <!-- Scanning state -->
+        <div class="validation-scanning" id="validationScanning">
+          <div class="progress-wheel-wrap">
+            <svg class="progress-wheel" viewBox="0 0 100 100">
+              <circle class="progress-wheel-bg" cx="50" cy="50" r="42"></circle>
+              <circle class="progress-wheel-fg" id="progressWheelFg" cx="50" cy="50" r="42"></circle>
+            </svg>
+            <div class="progress-wheel-pct" id="progressWheelPct">0%</div>
+          </div>
+          <div class="validation-status-text" id="validationStatusText">Reading IFC schema...</div>
+          <div class="validation-file-label" id="validationFileLabel">model.ifc</div>
+        </div>
+
+        <!-- Results state -->
+        <div class="validation-results" id="validationResults" style="display:none;">
+          <div class="validation-results-header">
+            <div class="validation-result-icon" id="validationResultIcon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <div>
+              <div class="validation-results-title" id="validationResultsTitle">Validation Complete</div>
+              <div class="validation-results-subtitle" id="validationResultsSubtitle">Scanned 1,284 elements across the model</div>
+            </div>
+          </div>
+
+          <div class="validation-metrics-grid">
+            <div class="metric-card metric-good">
+              <div class="metric-value" id="metricRecognized">0</div>
+              <div class="metric-label">Recognized Elements</div>
+            </div>
+            <div class="metric-card metric-warn">
+              <div class="metric-value" id="metricUnclassified">0</div>
+              <div class="metric-label">Unclassified Elements</div>
+            </div>
+            <div class="metric-card metric-bad">
+              <div class="metric-value" id="metricMissing">0</div>
+              <div class="metric-label">Missing Required Elements</div>
+            </div>
+          </div>
+
+          <div class="validation-checklist" id="validationChecklist">
+            <!-- Checklist items injected via JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" id="validationFooter" style="display:none;">
+        <button class="modal-btn modal-btn-secondary" id="validationCancelBtn">Cancel Upload</button>
+        <button class="modal-btn modal-btn-primary" id="validationProceedBtn">Proceed with Version</button>
       </div>
     </div>
   </div>
-
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <script>
-    let map = null;
-    if (window.L) {
-      map = L.map('projectMap', { zoomControl: true }).setView([47.2061391,-1.5629426], 16);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors', maxZoom: 19
-      }).addTo(map);
-      const customMarkerIcon = L.divIcon({
-        html: `<div class="marker-wrapper"><div class="pin-icon"></div></div>`,
-        iconSize: [90, 50], popupAnchor: [0, -50], className: 'custom-marker'
-      });
-      L.marker([47.2061391,-1.5629426], { icon: customMarkerIcon })
-        .addTo(map).bindPopup('Project Location: W0632');
-      L.circle([47.2061391,-1.5629426], {
-        radius: 30, color: '#2563eb', weight: 2, opacity: 1, fill: true,
-        fillColor: '#2563eb', fillOpacity: 0.3, dashArray: '5, 5'
-      }).addTo(map);
-      L.circle([47.2061391,-1.5629426], {
-        radius: 120, color: '#2563eb', weight: 2, opacity: 0.7, fill: true,
-        fillColor: '#2563eb', fillOpacity: 0.15, dashArray: '5, 5'
-      }).addTo(map);
-      setTimeout(() => map.invalidateSize(), 100);
-    }
+    // Initialize the map
+    const map = L.map('projectMap').setView([53.6152342, 10.6909497], 16);
 
-    const siteVisit3dCard = document.getElementById('siteVisit3dCard');
-    const surroundingMapCard = document.getElementById('surroundingMapCard');
-    const tilesViewerContent = document.getElementById('tilesViewerContent');
-    const tilesViewerFullscreen = document.getElementById('tilesFullscreenButton');
-    const tilesViewerStatus = document.getElementById('tilesViewerStatus');
-    const getCoordinatesButton = document.getElementById('getCoordinatesButton');
-    const measureDistanceButton = document.getElementById('measureDistanceButton');
-    const cancelViewerToolButton = document.getElementById('cancelViewerToolButton');
-    const tilesViewerToolResult = document.getElementById('tilesViewerToolResult');
-    const tilesViewerTools = document.getElementById('tilesViewerTools');
-    const tilesViewerToolsToggle = document.getElementById('tilesViewerToolsToggle');
-    let tilesViewer = null;
-    let tilesViewerToolHandler = null;
-    let tilesViewerToolMode = null;
-    let tilesViewerToolPoints = [];
-    let tilesViewerToolEntities = [];
-    const TILESET_URL = "https://d270g48h41voqy.cloudfront.net/Scene/Production_3_3DTiles.json";
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19,
+    }).addTo(map);
 
-    tilesViewerToolsToggle.addEventListener('click', () => {
-      const isExpanded = tilesViewerToolsToggle.getAttribute('aria-expanded') === 'true';
-      tilesViewerToolsToggle.setAttribute('aria-expanded', String(!isExpanded));
-      const label = isExpanded ? 'Show site tools' : 'Hide site tools';
-      tilesViewerToolsToggle.title = label;
-      tilesViewerToolsToggle.setAttribute('aria-label', label);
-      tilesViewerTools.classList.toggle('is-collapsed', isExpanded);
+    // Create custom marker with pin and antenna SVG
+    const customMarkerIcon = L.divIcon({
+      html: `
+        <div class="marker-wrapper">
+          <div class="pin-icon">
+            <img src="antenna.png" alt="Location Pin" style="width: 32px; height: 32px; object-fit: contain;">
+          </div>
+        </div>
+      `,
+      iconSize: [90, 50],
+      iconAnchor: [20, 40],  // Both pin and antenna anchor to this point
+      popupAnchor: [0, -50],
+      className: 'custom-marker'
     });
 
-    function setActiveDiscoveryCard(card) {
-      document.querySelectorAll('.section .card.selected').forEach(item => item.classList.remove('selected'));
-      card.classList.add('selected');
-    }
 
-    function showSurroundingMap() {
-      setActiveDiscoveryCard(surroundingMapCard);
-      clearViewerToolGraphics();
-      tilesViewerContent.classList.remove('active', 'fullscreen-fallback');
-      if (document.fullscreenElement === tilesViewerContent && document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
-      }
-      if (tilesViewer) tilesViewer.resize();
-      if (map) setTimeout(() => map.invalidateSize(), 0);
-    }
+    // Add marker at project location
+    L.marker([53.6152342, 10.6909497], { icon: customMarkerIcon })
+      .addTo(map)
+      .bindPopup('Project Location: W0632');
 
-    function clearViewerToolGraphics() {
-      if (tilesViewer && tilesViewer.entities) {
-        tilesViewerToolEntities.forEach(entity => tilesViewer.entities.remove(entity));
-      }
-      tilesViewerToolEntities = [];
-      tilesViewerToolPoints = [];
-      tilesViewerToolMode = null;
-      [getCoordinatesButton, measureDistanceButton].forEach(button => button.classList.remove('active'));
-      tilesViewerToolResult.textContent = '';
-    }
+    // Add 30m radius circle with fill
+    L.circle([53.6152342, 10.6909497], {
+      radius: 30,
+      color: '#2563eb',
+      weight: 2,
+      opacity: 1,
+      fill: true,
+      fillColor: '#2563eb',
+      fillOpacity: 0.3,
+      dashArray: '5, 5'
+    }).addTo(map);
 
-    function setViewerToolMode(mode) {
-      clearViewerToolGraphics();
-      tilesViewerToolMode = mode;
-      (mode === 'coordinates' ? getCoordinatesButton : measureDistanceButton).classList.add('active');
-      tilesViewerToolResult.textContent = mode === 'coordinates'
-        ? 'Click the model to read coordinates.'
-        : 'Click two points on the model to measure distance.';
-    }
+    // Add 120m radius circle with fill
+    L.circle([53.6152342, 10.6909497], {
+      radius: 120,
+      color: '#2563eb',
+      weight: 2,
+      opacity: 0.7,
+      fill: true,
+      fillColor: '#2563eb',
+      fillOpacity: 0.15,
+      dashArray: '5, 5'
+    }).addTo(map);
 
-    function pickViewerPosition(windowPosition) {
-      if (!tilesViewer || !windowPosition) return undefined;
-      const scene = tilesViewer.scene;
-      let position;
-      if (scene.pickPositionSupported) {
-        try { position = scene.pickPosition(windowPosition); } catch (error) { console.debug('pickPosition unavailable', error); }
-      }
-      if (!position && scene.globe) {
-        try { position = tilesViewer.camera.pickEllipsoid(windowPosition, scene.globe.ellipsoid); } catch (error) { console.debug('globe pick unavailable', error); }
-      }
-      return position;
-    }
+    // Fix map rendering after it's been hidden/shown
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
 
-    function addViewerToolPoint(position, color) {
-      const entity = tilesViewer.entities.add({
-        position,
-        point: { pixelSize: 12, color, outlineColor: Cesium.Color.WHITE, outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY }
-      });
-      tilesViewerToolEntities.push(entity);
-      return entity;
-    }
+    // Get all cards
+    const allCards = document.querySelectorAll('.card');
+    const bimCard = document.getElementById('bimCard');
+    const structuralCard = document.getElementById('structuralCard');
+    const viewerContent = document.getElementById('viewerContent');
+    const mainIframe = document.getElementById('mainViewerIframe');
+    const mask = document.getElementById('viewerMask');
+    const defaultViewer = document.querySelector('.default-viewer');
 
-    function handleViewerToolClick(click) {
-      const position = pickViewerPosition(click.position);
-      if (!position || !tilesViewerToolMode) return;
-      if (tilesViewerToolMode === 'coordinates') {
-        clearViewerToolGraphics();
-        addViewerToolPoint(position, Cesium.Color.YELLOW);
-        const cartographic = Cesium.Cartographic.fromCartesian(position);
-        const coordinateLabel = tilesViewer.entities.add({
-          position,
-          label: {
-            text: `Lon: ${Cesium.Math.toDegrees(cartographic.longitude).toFixed(7)}°\nLat: ${Cesium.Math.toDegrees(cartographic.latitude).toFixed(7)}°\nH: ${cartographic.height.toFixed(2)} m`,
-            font: "5200px Inter, sans-serif",   // was "13px Inter, sans-serif"
-            scale: 0.0025,
-            backgroundPadding: new Cesium.Cartesian2(2800, 2000),
-            pixelOffset: new Cesium.Cartesian2(0, -18),
-            fillColor: Cesium.Color.fromCssColorString('#1f3d30'),
-            showBackground: true,
-            backgroundColor: Cesium.Color.WHITE.withAlpha(0.9),
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            disableDepthTestDistance: Number.POSITIVE_INFINITY,
-            heightReference: Cesium.HeightReference.NONE
+    const feaViewerContent = document.getElementById('feaViewerContent');
+    const feaMask = document.getElementById('feaViewerMask');
+
+    const shapediverViewerContent = document.getElementById('shapediverViewerContent');
+    const shapediverIframe = document.getElementById('shapediverViewerIframe');
+
+    let BIM_APP_URL = '';            // filled in after login
+    let SHAPEDIVER_IFRAME_URL = '';  // filled in after login
+
+    allCards.forEach(card => {
+      card.addEventListener('click', () => {
+        // Clear selection state on all cards, then select this one
+        allCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+
+        if (card === bimCard) {
+          // Show BIM viewer, hide everything else
+          defaultViewer.style.display = 'none';
+          viewerContent.classList.add('active');
+          feaViewerContent.style.display = 'none';
+          shapediverViewerContent.style.display = 'none';
+
+          mask.classList.remove('visible');
+          setTimeout(() => {
+            mask.classList.add('visible');
+          }, 500);
+
+        } else if (card === structuralCard) {
+          // Show ShapeDiver viewer, hide everything else
+          defaultViewer.style.display = 'none';
+          viewerContent.classList.remove('active');
+          feaViewerContent.style.display = 'none';
+          shapediverViewerContent.style.display = 'block';
+
+
+          // Lazy-load the iframe src only once
+          if (!shapediverIframe.dataset.loaded) {
+            shapediverIframe.src = SHAPEDIVER_IFRAME_URL;
+            shapediverIframe.dataset.loaded = 'true';
           }
-        });
-        tilesViewerToolEntities.push(coordinateLabel);
-        tilesViewerToolResult.textContent = `Longitude: ${Cesium.Math.toDegrees(cartographic.longitude).toFixed(7)}\nLatitude: ${Cesium.Math.toDegrees(cartographic.latitude).toFixed(7)}\nHeight: ${cartographic.height.toFixed(2)} m`;
-        tilesViewerToolMode = 'coordinates';
-        getCoordinatesButton.classList.add('active');
-        return;
-      }
-      tilesViewerToolPoints.push(position);
-      addViewerToolPoint(position, Cesium.Color.CYAN);
-      if (tilesViewerToolPoints.length === 2) {
-        const distance = Cesium.Cartesian3.distance(tilesViewerToolPoints[0], tilesViewerToolPoints[1]);
-        const line = tilesViewer.entities.add({ polyline: { positions: tilesViewerToolPoints.slice(), width: 3, material: Cesium.Color.CYAN, clampToGround: false, depthFailMaterial: Cesium.Color.CYAN } });
-        tilesViewerToolEntities.push(line);
-        const midpoint = Cesium.Cartesian3.midpoint(tilesViewerToolPoints[0], tilesViewerToolPoints[1], new Cesium.Cartesian3());
-        const distanceLabel = tilesViewer.entities.add({
-          position: midpoint,
-          label: {
-            text: `${distance.toFixed(2)} m`,
-            font: '13px Inter, sans-serif',
-            fillColor: Cesium.Color.fromCssColorString('#1f3d30'),
-            showBackground: true,
-            backgroundColor: Cesium.Color.WHITE.withAlpha(0.9),
-            backgroundPadding: new Cesium.Cartesian2(7, 5),
-            pixelOffset: new Cesium.Cartesian2(0, -18),
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            disableDepthTestDistance: Number.POSITIVE_INFINITY,
-            heightReference: Cesium.HeightReference.NONE
-          }
-        });
-        tilesViewerToolEntities.push(distanceLabel);
-        tilesViewerToolResult.textContent = `Straight-line 3D distance: ${distance.toFixed(2)} m`;
-        tilesViewerToolMode = null;
-        measureDistanceButton.classList.remove('active');
-      } else {
-        tilesViewerToolResult.textContent = 'First point set. Click a second point.';
-      }
-    }
 
-    function setupViewerToolHandler() {
-      if (tilesViewerToolHandler || !tilesViewer) return;
-      tilesViewerToolHandler = new Cesium.ScreenSpaceEventHandler(tilesViewer.scene.canvas);
-      tilesViewerToolHandler.setInputAction(handleViewerToolClick, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-    }
-
-    async function initializeTilesViewer() {
-      if (tilesViewer) { setupViewerToolHandler(); tilesViewer.resize(); return tilesViewer; }
-      if (!window.Cesium) throw new Error('CesiumJS failed to load');
-      tilesViewer = new Cesium.Viewer('tilesViewerContainer', {
-        fullscreenButton: false,
-        homeButton: false,
-        baseLayerPicker: false,
-        baseLayer: false,
-        sceneModePicker: false,
-        navigationHelpButton: false,
-        geocoder: false,
-        animation: false,
-        timeline: false,
-        infoBox: false,
-        selectionIndicator: false,
-        contextOptions: { webgl: { alpha: true } },
-        terrainProvider: new Cesium.EllipsoidTerrainProvider()
-      });
-      tilesViewer.useBrowserRecommendedResolution = false;
-      tilesViewer.scene.postProcessStages.fxaa.enabled = false;
-      tilesViewer.scene.backgroundColor = Cesium.Color.TRANSPARENT;
-      if (tilesViewer.scene.skyBox) tilesViewer.scene.skyBox.show = false;
-      if (tilesViewer.scene.sun) tilesViewer.scene.sun.show = false;
-      if (tilesViewer.scene.moon) tilesViewer.scene.moon.show = false;
-      if (tilesViewer.scene.skyAtmosphere) tilesViewer.scene.skyAtmosphere.show = false;
-      if (tilesViewer.scene.globe) {
-        tilesViewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#d9dde3');
-        tilesViewer.scene.globe.show = false;
-      }
-      const tileset = await Cesium.Cesium3DTileset.fromUrl(TILESET_URL);
-      tilesViewer.scene.primitives.add(tileset);
-      await tilesViewer.zoomTo(tileset);
-      setupViewerToolHandler();
-      return tilesViewer;
-    }
-
-    async function openTilesViewer() {
-      setActiveDiscoveryCard(siteVisit3dCard);
-      tilesViewerContent.classList.add('active');
-      tilesViewerStatus.style.display = 'none';
-      try { await initializeTilesViewer(); }
-      catch (err) {
-        console.error('3D Site Visit failed:', err);
-        tilesViewerStatus.textContent = err.message;
-        tilesViewerStatus.style.display = 'block';
-      }
-      if (tilesViewer) tilesViewer.resize();
-    }
-
-    function closeTilesViewer() {
-      setActiveDiscoveryCard(surroundingMapCard);
-      clearViewerToolGraphics();
-      if (document.fullscreenElement === tilesViewerContent && document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
-      }
-      tilesViewerContent.classList.remove('active', 'fullscreen-fallback');
-      if (tilesViewer) tilesViewer.resize();
-    }
-
-    async function toggleTilesViewerFullscreen() {
-      if (document.fullscreenElement === tilesViewerContent) {
-        if (document.exitFullscreen) await document.exitFullscreen();
-        return;
-      }
-      if (tilesViewerContent.classList.contains('fullscreen-fallback')) {
-        tilesViewerContent.classList.remove('fullscreen-fallback');
-        updateFullscreenButton();
-        return;
-      }
-      if (tilesViewerContent.requestFullscreen) {
-        try { await tilesViewerContent.requestFullscreen(); }
-        catch (err) {
-          tilesViewerContent.classList.add('fullscreen-fallback');
-          updateFullscreenButton();
+        } else {
+          // Default: show map, hide all viewers
+          defaultViewer.style.display = 'flex';
+          viewerContent.classList.remove('active');
+          feaViewerContent.style.display = 'none';
+          shapediverViewerContent.style.display = 'none';
         }
-      } else {
-        tilesViewerContent.classList.add('fullscreen-fallback');
-        updateFullscreenButton();
-      }
-      if (tilesViewer) tilesViewer.resize();
-    }
-
-    function updateFullscreenButton() {
-      const isFullscreen = document.fullscreenElement === tilesViewerContent || tilesViewerContent.classList.contains('fullscreen-fallback');
-      tilesViewerFullscreen.classList.toggle('is-fullscreen', isFullscreen);
-      tilesViewerFullscreen.title = isFullscreen ? 'Exit full screen' : 'Full screen';
-      tilesViewerFullscreen.setAttribute('aria-label', isFullscreen ? 'Exit full screen' : 'Full screen');
-      if (tilesViewer) tilesViewer.resize();
-    }
-
-    getCoordinatesButton.addEventListener('click', () => setViewerToolMode('coordinates'));
-    measureDistanceButton.addEventListener('click', () => setViewerToolMode('measure'));
-    cancelViewerToolButton.addEventListener('click', clearViewerToolGraphics);
-    siteVisit3dCard.addEventListener('click', openTilesViewer);
-    surroundingMapCard.addEventListener('click', showSurroundingMap);
-    tilesViewerFullscreen.addEventListener('click', toggleTilesViewerFullscreen);
-    document.addEventListener('fullscreenchange', updateFullscreenButton);
-    // Preserve the clickable appearance of links without allowing navigation.
-    document.querySelectorAll('a[href]').forEach(link => {
-      link.addEventListener('click', event => event.preventDefault());
+      });
     });
+
+       // Version History Modal functionality
+      const versionBtn = document.getElementById('versionBtn');
+      const versionModal = document.getElementById('versionModal');
+      const modalCloseBtn = document.getElementById('modalCloseBtn');
+      const versionList = document.getElementById('versionList');
+      const compareBtn = document.getElementById('compareBtn');
+      const loadBtn = document.getElementById('loadBtn');
+      const versionBadge = versionBtn.querySelector('.version-badge');
+      const bimIframe = document.querySelector('#viewerContent iframe');
+
+      // Map of version -> BIM model iframe src (swap these URLs with real ones per version)
+      const versionModels = {
+        'Rev. D': '',
+        'Rev. C': '',
+        'Rev. B': '',
+        'Rev. A': ''
+      };
+
+      versionBtn.addEventListener('click', () => {
+        versionModal.classList.add('active');
+      });
+
+      modalCloseBtn.addEventListener('click', () => {
+        versionModal.classList.remove('active');
+      });
+
+      versionModal.addEventListener('click', (e) => {
+        if (e.target === versionModal) {
+          versionModal.classList.remove('active');
+        }
+      });
+
+      const versionItems = versionList.querySelectorAll('.version-item');
+      versionItems.forEach(item => {
+        item.addEventListener('click', () => {
+          versionItems.forEach(v => v.classList.remove('selected'));
+          item.classList.add('selected');
+        });
+      });
+
+      compareBtn.addEventListener('click', () => {
+        const selectedVersion = document.querySelector('.version-item.selected');
+        console.log('Comparison mode: Compare current version with ' + selectedVersion.dataset.version);
+      });
+
+      loadBtn.addEventListener('click', () => {
+        const selectedItem = document.querySelector('.version-item.selected');
+        const selectedVersion = selectedItem.dataset.version;
+        const previousVersion = versionBadge.textContent;
+
+        // Update the version badge in the sidebar button
+        versionBadge.textContent = selectedVersion;
+
+        // Swap the BIM model iframe source based on selected version
+        if (versionModels[selectedVersion]) {
+          bimIframe.src = versionModels[selectedVersion];
+        }
+
+        // If Rev. C is loaded, trigger the BIM viewer to open automatically
+
+          allCards.forEach(c => c.classList.remove('selected'));
+          bimCard.classList.add('selected');
+          defaultViewer.style.display = 'none';
+          feaViewerContent.style.display = 'none';         // ADD THIS
+          shapediverViewerContent.style.display = 'none';   // ADD THIS
+          viewerContent.classList.add('active');
+          mask.classList.remove('visible');
+          setTimeout(() => {
+            mask.classList.add('visible');
+          }, 500);
+
+
+        // Trigger highlight animation only if version actually changed
+        if (previousVersion !== selectedVersion) {
+          versionBtn.classList.remove('version-updated');
+          versionBadge.classList.remove('badge-updated');
+
+          // Force reflow so the animation restarts even if triggered repeatedly
+          void versionBtn.offsetWidth;
+
+          versionBtn.classList.add('version-updated');
+          versionBadge.classList.add('badge-updated');
+
+          updateMiniTrafficLights(selectedVersion);
+
+          versionBtn.addEventListener('animationend', () => {
+            versionBtn.classList.remove('version-updated');
+          }, { once: true });
+
+          versionBadge.addEventListener('animationend', () => {
+            versionBadge.classList.remove('badge-updated');
+          }, { once: true });
+        }
+
+        versionModal.classList.remove('active');
+      });
+      // Example equipment change data per revision (compared to current main version)
+      const versionChanges = {
+        'Rev. A': [
+          { item: 'Antenna Sector Configuration', type: 'modified', details: 'Initial 3-sector layout deployed at 0°, 120°, 240° azimuth for baseline coverage.' },
+          { item: 'Mast AT1', type: 'added', details: '30m self-supporting lattice tower installed as primary structure.' },
+          { item: 'Remote Radio Units (RRU)', type: 'added', details: '3x Huawei RRU 5502 units mounted at 28m level, LTE Band 3/20 configuration.' },
+          { item: 'Sector Antennas', type: 'added', details: '3x Kathrein 80010541 dual-polarized panel antennas, 65° beamwidth.' },
+          { item: 'Feeder Cabling', type: 'added', details: 'Initial 1-5/8" low-loss trunk feed routed from cabinet to Mast AT1.' },
+          { item: 'Base Station Cabinet', type: 'added', details: 'Nokia FlexiBTS outdoor cabinet installed, IP55-rated enclosure.' },
+          { item: 'Grounding System', type: 'added', details: 'Baseline earthing and lightning protection network installed per EN 62305.' },
+          { item: 'Cable Ladder', type: 'added', details: 'Galvanized steel cable ladder installed for feeder and fiber routing along mast.' },
+          { item: 'Site Access Platform', type: 'added', details: 'Maintenance platform installed at 28m level for antenna servicing.' },
+          { item: 'Power Distribution Unit', type: 'added', details: 'AC/DC power distribution unit commissioned to supply baseband and radio equipment.' }
+        ],
+        'Rev. B': [
+          { item: 'Mast AT2', type: 'added', details: 'Secondary 28.5m lattice tower added to support network capacity expansion.' },
+          { item: 'Microwave Backhaul Link', type: 'added', details: '0.6m RFS SPX2W-0.6 microwave antenna installed for point-to-point backhaul to Mast AT1.' },
+          { item: 'Systemtechnik Cabinet', type: 'removed', details: 'Legacy equipment cabinet decommissioned and cleared from site as part of modernization works.' },
+          { item: 'Antenna Sector Configuration', type: 'modified', details: 'Azimuth realigned to 10°, 130°, 250° to optimize coverage overlap and reduce interference.' },
+          { item: 'Sector Antennas', type: 'modified', details: 'Upgraded to Ericsson AIR 3268 Massive MIMO units, 32T32R configuration for 5G NR readiness.' },
+          { item: 'Baseband Unit', type: 'added', details: 'Ericsson BB 6648 installed to support multi-carrier aggregation.' },
+          { item: 'Fiber Optic Trunk', type: 'added', details: 'Single-mode fiber trunk line installed between AT1 and AT2 for fronthaul connectivity.' },
+          { item: 'Battery Backup System', type: 'added', details: 'VRLA battery bank installed to provide 4-hour backup runtime during power outages.' },
+          { item: 'Antenna Mount Bracket', type: 'modified', details: 'Bracket assembly reinforced to accommodate Massive MIMO antenna weight and wind load.' },
+          { item: 'Site Fencing', type: 'added', details: 'Perimeter security fencing extended to enclose Mast AT2 compound.' },
+          { item: 'Climate Control Unit', type: 'added', details: 'Air conditioning unit installed in cabinet enclosure to maintain equipment thermal thresholds.' }
+        ],
+        'Rev. C': [
+          { item: 'Mast AT3', type: 'added', details: 'New 25m monopole structure erected to support 5G network densification.' },
+          { item: 'Systemtechnik Cabinet', type: 'removed', details: 'Remaining legacy cabinet fully decommissioned during site upgrade works.' },
+          { item: 'Remote Radio Units (RRU)', type: 'modified', details: 'Upgraded to 4x 5G-capable Active Antenna Units for enhanced spectral efficiency.' },
+          { item: 'Feeder Cabling', type: 'added', details: 'New low-loss feeder cables routed to Mast AT3 to support additional RF load.' },
+          { item: 'Antenna Sector Configuration', type: 'modified', details: 'Reconfigured to 4-sector layout at 0°, 90°, 180°, 270° azimuth for full 360° coverage.' },
+          { item: 'Surge Protection Unit', type: 'added', details: 'Huawei DTU surge suppression module installed to protect AAU feed lines.' },
+          { item: 'Microwave Backhaul Link', type: 'modified', details: 'Reconfigured for higher-capacity 5G-H backhaul throughput.' },
+          { item: 'Small Cell Unit', type: 'added', details: 'Nokia AEHC small cell deployed at 15m level for street-level capacity offload.' },
+          { item: 'Fiber Distribution Unit', type: 'added', details: 'CommScope FDU installed to support fronthaul splicing for Mast AT3.' },
+          { item: 'Antenna Radome', type: 'added', details: 'Weatherproof radome fitted to protect Massive MIMO antenna array from environmental exposure.' },
+          { item: 'RF Combiner', type: 'added', details: 'Multi-band RF combiner installed to consolidate legacy and 5G NR frequency bands.' },
+          { item: 'Cabinet Cooling Fan', type: 'modified', details: 'Cabinet ventilation upgraded with high-capacity fans to manage increased thermal load.' }
+        ],
+        'Rev. D': [
+          { item: 'Structural Layout', type: 'modified', details: 'Revised structural design implemented for updated load distribution across mast assemblies.' },
+          { item: 'Mast AT3', type: 'modified', details: 'Foundation reinforced to accommodate additional antenna and equipment load.' },
+          { item: 'Grounding System', type: 'added', details: 'Upgraded lightning protection and earthing network installed, compliant with EN 62305.' },
+          { item: 'Radio Equipment Shelter', type: 'added', details: '2x Ericsson ERS 2217 compact outdoor shelters installed for auxiliary RF processing.' },
+          { item: 'Fiber Distribution Unit', type: 'added', details: 'CommScope FDU installed for fronthaul fiber termination and splicing.' },
+          { item: 'Structural Mount', type: 'modified', details: 'Antenna support brackets redesigned per updated structural load analysis.' },
+          { item: 'Surge Protection Unit', type: 'removed', details: 'Legacy surge protection module superseded by integrated AAU protection circuitry.' },
+          { item: 'Obstruction Lighting', type: 'added', details: 'Aviation warning light installed at mast tip per civil aviation authority requirements.' },
+          { item: 'Cable Management System', type: 'modified', details: 'Cable trays reorganized to segregate power, fiber, and RF feeder runs.' },
+          { item: 'Access Ladder Safety System', type: 'added', details: 'Fall arrest rail system installed along mast climbing ladder for technician safety.' },
+          { item: 'Site Signage', type: 'added', details: 'RF exposure warning signage and site identification labels installed per regulatory compliance.' },
+          { item: 'Power Distribution Unit', type: 'modified', details: 'Upgraded to higher-capacity PDU to support additional radio equipment load.' }
+        ]
+      };
+
+      // ADD THIS RIGHT AFTER
+      const versionTrafficLights = {
+        'Rev. A': { los: 'red', emf: 'red', prestatic: 'red' },
+        'Rev. B': { los: 'green', emf: 'red', prestatic: 'red' },
+        'Rev. C': { los: 'green', emf: 'red', prestatic: 'green' },
+        'Rev. D': { los: 'green', emf: 'green', prestatic: 'green' },
+      };
+
+      updateMiniTrafficLights('Rev. D');
+
+      const compareModal = document.getElementById('compareModal');
+      const compareModalCloseBtn = document.getElementById('compareModalCloseBtn');
+      const compareModalCloseBtn2 = document.getElementById('compareModalCloseBtn2');
+      const compareTableBody = document.getElementById('compareTableBody');
+      const compareFromVersion = document.getElementById('compareFromVersion');
+      const compareToVersion = document.getElementById('compareToVersion');
+
+      function closeCompareModal() {
+        compareModal.classList.remove('active');
+      }
+
+      compareModalCloseBtn.addEventListener('click', closeCompareModal);
+      compareModalCloseBtn2.addEventListener('click', closeCompareModal);
+      compareModal.addEventListener('click', (e) => {
+        if (e.target === compareModal) closeCompareModal();
+      });
+
+      compareBtn.addEventListener('click', () => {
+        const selectedItem = document.querySelector('.version-item.selected');
+        const selectedVersion = selectedItem.dataset.version;
+        const currentVersion = versionBadge.textContent;
+
+        compareFromVersion.textContent = selectedVersion;
+        compareToVersion.textContent = currentVersion + ' (Current)';
+
+        const changes = versionChanges[selectedVersion] || [];
+
+        compareTableBody.innerHTML = changes.map(change => {
+          const rowClass = change.type === 'added'
+            ? 'compare-row-added'
+            : change.type === 'removed'
+              ? 'compare-row-removed'
+              : 'compare-row-modified';
+
+          const tagLabel = change.type.charAt(0).toUpperCase() + change.type.slice(1);
+
+          return `
+            <tr class="${rowClass}">
+              <td>${change.item}</td>
+              <td><span class="change-tag ${change.type}">${tagLabel}</span></td>
+              <td>${change.details}</td>
+            </tr>
+          `;
+        }).join('');
+
+        versionModal.classList.remove('active');
+        compareModal.classList.add('active');
+      });
+
+      // New Version Upload Modal functionality
+      const newVersionBtn = document.getElementById('newVersionBtn');
+      const newVersionModal = document.getElementById('newVersionModal');
+      const newVersionModalCloseBtn = document.getElementById('newVersionModalCloseBtn');
+      const newVersionCancelBtn = document.getElementById('newVersionCancelBtn');
+      const newVersionConfirmBtn = document.getElementById('newVersionConfirmBtn');
+
+      const ifcDropzone = document.getElementById('ifcDropzone');
+      const ifcFileInput = document.getElementById('ifcFileInput');
+      const uploadIdleState = document.getElementById('uploadIdleState');
+      const uploadFileState = document.getElementById('uploadFileState');
+      const uploadFileName = document.getElementById('uploadFileName');
+      const uploadFileSize = document.getElementById('uploadFileSize');
+      const uploadRemoveBtn = document.getElementById('uploadRemoveBtn');
+      const uploadError = document.getElementById('uploadError');
+      const newVersionLabel = document.getElementById('newVersionLabel');
+
+      let selectedIfcFile = null;
+
+      function openNewVersionModal() {
+        newVersionModal.classList.add('active');
+      }
+      function closeNewVersionModal() {
+        newVersionModal.classList.remove('active');
+        resetNewVersionModal();
+      }
+      function resetNewVersionModal() {
+        selectedIfcFile = null;
+        ifcFileInput.value = '';
+        uploadIdleState.style.display = 'flex';
+        uploadFileState.style.display = 'none';
+        ifcDropzone.classList.remove('has-file', 'dragover');
+        uploadError.style.display = 'none';
+        newVersionLabel.value = '';
+        document.getElementById('newVersionNotes').value = '';
+        updateConfirmState();
+      }
+
+      function updateConfirmState() {
+        newVersionConfirmBtn.disabled = !(selectedIfcFile && newVersionLabel.value.trim().length > 0);
+      }
+
+      function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+      }
+
+      function handleFileSelection(file) {
+        if (!file) return;
+        const isIfc = file.name.toLowerCase().endsWith('.ifc');
+
+        if (!isIfc) {
+          uploadError.style.display = 'block';
+          selectedIfcFile = null;
+          uploadIdleState.style.display = 'flex';
+          uploadFileState.style.display = 'none';
+          ifcDropzone.classList.remove('has-file');
+          updateConfirmState();
+          return;
+        }
+
+        uploadError.style.display = 'none';
+        selectedIfcFile = file;
+        uploadFileName.textContent = file.name;
+        uploadFileSize.textContent = formatFileSize(file.size);
+        uploadIdleState.style.display = 'none';
+        uploadFileState.style.display = 'flex';
+        ifcDropzone.classList.add('has-file');
+        updateConfirmState();
+      }
+
+      newVersionBtn.addEventListener('click', openNewVersionModal);
+      newVersionModalCloseBtn.addEventListener('click', closeNewVersionModal);
+      newVersionCancelBtn.addEventListener('click', closeNewVersionModal);
+
+      newVersionModal.addEventListener('click', (e) => {
+        if (e.target === newVersionModal) closeNewVersionModal();
+      });
+
+      ifcFileInput.addEventListener('change', (e) => {
+        handleFileSelection(e.target.files[0]);
+      });
+
+      uploadRemoveBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        selectedIfcFile = null;
+        ifcFileInput.value = '';
+        uploadIdleState.style.display = 'flex';
+        uploadFileState.style.display = 'none';
+        ifcDropzone.classList.remove('has-file');
+        updateConfirmState();
+      });
+
+      // Drag & drop
+      ['dragenter', 'dragover'].forEach(evt => {
+        ifcDropzone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!selectedIfcFile) ifcDropzone.classList.add('dragover');
+        });
+      });
+      ['dragleave', 'drop'].forEach(evt => {
+        ifcDropzone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          ifcDropzone.classList.remove('dragover');
+        });
+      });
+      ifcDropzone.addEventListener('drop', (e) => {
+        const file = e.dataTransfer.files[0];
+        handleFileSelection(file);
+      });
+
+      newVersionLabel.addEventListener('input', updateConfirmState);
+
+      // Confirm upload -> validate then create new version entry
+      newVersionConfirmBtn.addEventListener('click', () => {
+        if (!selectedIfcFile) return;
+
+        const versionTag = newVersionLabel.value.trim();
+        const notes = document.getElementById('newVersionNotes').value.trim() || 'No description provided.';
+
+        // Store data to use after validation completes
+        pendingVersionData = {
+          versionTag: versionTag,
+          notes: notes,
+          fileName: selectedIfcFile.name
+        };
+
+        openValidationModal(selectedIfcFile.name);
+        closeNewVersionModal();
+      });
+
+      // ============ IFC VALIDATION MODAL ============
+      const ifcValidationModal = document.getElementById('ifcValidationModal');
+      const validationScanning = document.getElementById('validationScanning');
+      const validationResults = document.getElementById('validationResults');
+      const validationFooter = document.getElementById('validationFooter');
+      const validationCloseBtn = document.getElementById('validationCloseBtn');
+      const progressWheelFg = document.getElementById('progressWheelFg');
+      const progressWheelPct = document.getElementById('progressWheelPct');
+      const validationStatusText = document.getElementById('validationStatusText');
+      const validationFileLabel = document.getElementById('validationFileLabel');
+      const validationModalTitle = document.getElementById('validationModalTitle');
+      const validationCancelBtn = document.getElementById('validationCancelBtn');
+      const validationProceedBtn = document.getElementById('validationProceedBtn');
+      const metricRecognized = document.getElementById('metricRecognized');
+      const metricUnclassified = document.getElementById('metricUnclassified');
+      const metricMissing = document.getElementById('metricMissing');
+      const validationChecklist = document.getElementById('validationChecklist');
+
+      const CIRCLE_CIRCUMFERENCE = 264;
+
+      const TELCO_ELEMENT_CHECKS = [
+        { key: 'mast',        label: 'Mast / Tower Structure',            required: true },
+        { key: 'antenna',     label: 'Antennas (Sector/Panel)',           required: true },
+        { key: 'rru',         label: 'Remote Radio Units (RRU)',          required: true },
+        { key: 'feeder',      label: 'Feeder / Coax Cable Runs',          required: true },
+        { key: 'cabinet',     label: 'Equipment Cabinets / Shelters',     required: true },
+        { key: 'groundring',  label: 'Grounding Ring / Earthing',         required: true },
+        { key: 'cable_tray',  label: 'Cable Trays / Ladder Racks',        required: false },
+        { key: 'foundation',  label: 'Foundation / Base Plate',           required: true },
+        { key: 'lightning',   label: 'Lightning Protection Rod',          required: false },
+        { key: 'safety',      label: 'Safety Climb / Fall Arrest System', required: false },
+      ];
+
+      const SCAN_STEPS = [
+        'Reading IFC schema...',
+        'Indexing spatial structure...',
+        'Detecting mast & tower geometry...',
+        'Classifying antenna sectors...',
+        'Checking RRU & cabinet placements...',
+        'Verifying cable & feeder routing...',
+        'Cross-checking grounding system...',
+        'Finalizing report...'
+      ];
+
+      let scanInterval = null;
+
+      function openValidationModal(fileName) {
+        validationFileLabel.textContent = fileName;
+        ifcValidationModal.classList.add('active');
+        validationScanning.style.display = 'flex';
+        validationResults.style.display = 'none';
+        validationFooter.style.display = 'none';
+        validationCloseBtn.style.display = 'none';
+
+        startValidationScan();
+      }
+
+      function startValidationScan() {
+        let stepIndex = 0;
+        let progress = 0;
+
+        scanInterval = setInterval(() => {
+          if (stepIndex < SCAN_STEPS.length) {
+            validationStatusText.textContent = SCAN_STEPS[stepIndex];
+            progress = Math.min(100, progress + Math.random() * 25);
+
+            if (progress >= (stepIndex + 1) * (100 / SCAN_STEPS.length)) {
+              stepIndex++;
+            }
+          } else {
+            progress = 100;
+          }
+
+          const offset = CIRCLE_CIRCUMFERENCE * (1 - progress / 100);
+          progressWheelFg.style.strokeDashoffset = offset;
+          progressWheelPct.textContent = Math.round(progress) + '%';
+
+          if (progress >= 100) {
+            clearInterval(scanInterval);
+            setTimeout(showValidationResults, 500);
+          }
+        }, 300);
+      }
+
+      function generateFakeResults() {
+        const results = TELCO_ELEMENT_CHECKS.map(check => {
+          const rand = Math.random();
+          let status = 'ok';
+          let count = Math.floor(Math.random() * 5) + 1;
+
+          if (!check.required && rand > 0.7) {
+            status = 'warn';
+          } else if (check.required && rand > 0.85) {
+            status = 'bad';
+            count = 0;
+          }
+
+          return {
+            key: check.key,
+            label: check.label,
+            required: check.required,
+            status: status,
+            count: count
+          };
+        });
+
+        return enforceAtLeastOneNotReady(results);
+      }
+
+      // Ensures at least one traffic light (LOS, EMF, or Pre-static) is not green
+      function enforceAtLeastOneNotReady(results) {
+        const useCaseKeys = Object.keys(USE_CASE_MAP); // ['los', 'emf', 'prestatic']
+
+        // Compute current statuses
+        let statuses = {};
+        useCaseKeys.forEach(uc => {
+          statuses[uc] = computeTLStatus(uc, results);
+        });
+
+        let greenCount = useCaseKeys.filter(uc => statuses[uc] === 'green').length;
+
+        // Case 1: all 3 green -> force exactly one to red
+        if (greenCount === 3) {
+          const targetUC = useCaseKeys[Math.floor(Math.random() * useCaseKeys.length)];
+          breakUseCase(targetUC, results);
+          statuses[targetUC] = 'red';
+          greenCount = 2;
+        }
+
+        // Case 2: fewer than 2 green -> fix enough to guarantee at least 2 green
+        else if (greenCount < 2) {
+          // Determine which use cases are currently red
+          const redUCs = useCaseKeys.filter(uc => statuses[uc] === 'red');
+
+          // Fix red ones until we have at least 2 green, but leave at least 1 red
+          while (greenCount < 2 && redUCs.length > 0) {
+            const ucToFix = redUCs.pop();
+            fixUseCase(ucToFix, results);
+            statuses[ucToFix] = 'green';
+            greenCount++;
+          }
+        }
+
+        return results;
+      }
+
+      // Helper: break one required element for a use case so it becomes red
+      function breakUseCase(useCaseKey, results) {
+        const neededKeys = USE_CASE_MAP[useCaseKey];
+        const keyToBreak = neededKeys[Math.floor(Math.random() * neededKeys.length)];
+        const el = results.find(r => r.key === keyToBreak);
+        if (el) {
+          el.status = 'bad';
+          el.count = 0;
+        }
+      }
+
+      // Helper: fix all required elements for a use case so it becomes green
+      function fixUseCase(useCaseKey, results) {
+        const neededKeys = USE_CASE_MAP[useCaseKey];
+        neededKeys.forEach(key => {
+          const el = results.find(r => r.key === key);
+          if (el) {
+            el.status = 'good';
+            el.count = Math.max(el.count || 0, 1);
+          }
+        });
+      }
+
+      const CHECK_ICONS = {
+        ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+        warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+        bad: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'
+      };
+
+      // ============ TRAFFIC LIGHT USE-CASE INDICATORS ============
+      const USE_CASE_MAP = {
+        los:        ['mast', 'antenna'],
+        emf:        ['antenna', 'rru', 'feeder'],
+        prestatic:  ['mast', 'cabinet', 'groundring', 'cable_tray', 'foundation']
+      };
+
+      const TL_COLORS = { green: 'tl-green', red: 'tl-red', off: 'tl-off' };
+      const TL_ICONS  = { green: '&#10003;', red: '&times;', off: '?' };
+
+      function computeTLStatus(useCaseKey, results) {
+        const FIXED_STATUS = {
+          los: 'green',
+          emf: 'green',
+          prestatic: 'red'
+        };
+
+        return FIXED_STATUS[useCaseKey] || 'off';
+      }
+
+      function updateMiniTrafficLights(versionTag) {
+        const tl = versionTrafficLights[versionTag];
+        if (!tl) return;
+
+        ['los', 'emf', 'prestatic'].forEach(uc => {
+          const bulb = document.getElementById(`mini-tl-${uc}`);
+          if (!bulb) return;
+          bulb.className = `mini-bulb mini-bulb-${tl[uc]}`;
+        });
+      }
+
+      function updateTrafficLights(results) {
+        const section = document.getElementById('trafficLightSection');
+        if (section) section.style.display = 'block';
+
+        ['los', 'emf', 'prestatic'].forEach(uc => {
+          const bulb = document.getElementById(`tl-${uc}-bulb`);
+          if (!bulb) return;
+          const status = computeTLStatus(uc, results);
+          bulb.className = `tl-bulb ${TL_COLORS[status]}`;
+          bulb.innerHTML = TL_ICONS[status];
+          bulb.title = `${uc.toUpperCase()} — ${status.charAt(0).toUpperCase() + status.slice(1)}`;
+        });
+      }
+
+      function showValidationResults() {
+        const results = generateFakeResults();
+
+        const recognizedCount = results.filter(r => r.status === 'ok').reduce((sum, r) => sum + r.count, 0);
+        const unclassifiedCount = results.filter(r => r.status === 'warn').reduce((sum, r) => sum + r.count, 0);
+        const missingCount = results.filter(r => r.status === 'bad').length;
+        const hasMissing = missingCount > 0;
+
+        updateTrafficLights(results);
+
+        metricRecognized.textContent = recognizedCount;
+        metricUnclassified.textContent = unclassifiedCount;
+        metricMissing.textContent = missingCount;
+
+        validationChecklist.innerHTML = results.map(r => {
+          const statusClass = `status-${r.status}`;
+          const icon = CHECK_ICONS[r.status];
+          const badge = r.required ? '<span style="color: var(--text-light); font-weight: 600;">Required</span>' : '';
+
+          return `
+            <div class="checklist-item ${statusClass}">
+              ${icon}
+              <span>${r.label} ${badge}</span>
+              <span class="checklist-item-count">${r.count}</span>
+            </div>
+          `;
+        }).join('');
+
+        validationScanning.style.display = 'none';
+        validationResults.style.display = 'block';
+        validationModalTitle.textContent = hasMissing ? 'Validation Issues Found' : 'Validation Complete';
+        validationFooter.style.display = 'flex';
+        validationCloseBtn.style.display = hasMissing ? 'none' : 'block';
+      }
+
+      // Close validation modal
+      if (validationCloseBtn) {
+        validationCloseBtn.addEventListener('click', () => {
+          ifcValidationModal.classList.remove('active');
+        });
+      }
+
+      if (validationCancelBtn) {
+        validationCancelBtn.addEventListener('click', () => {
+          ifcValidationModal.classList.remove('active');
+        });
+      }
+      function finalizeVersionCreation() {
+        if (!pendingVersionData) return;
+
+        const { versionTag, notes, fileName } = pendingVersionData;
+
+        // Create a local object URL for the uploaded IFC file
+        const fakeModelUrl = bimIframe.src;
+
+        // Register new version in the versionModels map
+        versionModels[versionTag] = fakeModelUrl;
+        versionTrafficLights[versionTag] = { los: 'green', emf: 'green', prestatic: 'red' };
+
+        updateMiniTrafficLights(versionTag);
+
+        // Add new entry to top of the version history list
+        const newItem = document.createElement('div');
+        newItem.className = 'version-item selected';
+        newItem.dataset.version = versionTag;
+        newItem.innerHTML = `
+          <div class="version-item-header">
+            <span class="version-item-badge">${versionTag}</span>
+            <span class="version-item-date">${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          </div>
+          <div class="version-item-author">Uploaded by Jane Cooper</div>
+          <div class="version-item-description">${notes} (File: ${fileName})</div>
+          <div class="version-item-tl">
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb green"></span>
+              <span class="version-item-tl-label">LOS</span>
+            </div>
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb green"></span>
+              <span class="version-item-tl-label">EMF</span>
+            </div>
+            <div class="version-item-tl-indicator">
+              <span class="version-item-tl-bulb red"></span>
+              <span class="version-item-tl-label">Prestatic</span>
+            </div>
+          </div>
+        `;
+        document.querySelectorAll('.version-item').forEach(v => v.classList.remove('selected'));
+        versionList.prepend(newItem);
+
+        // Rebind click handler for the new item
+        newItem.addEventListener('click', () => {
+          document.querySelectorAll('.version-item').forEach(v => v.classList.remove('selected'));
+          newItem.classList.add('selected');
+        });
+
+        // Update sidebar badge + trigger animation
+        const previousVersion = versionBadge.textContent;
+        versionBadge.textContent = versionTag;
+
+        if (previousVersion !== versionTag) {
+          versionBtn.classList.remove('version-updated');
+          versionBadge.classList.remove('badge-updated');
+          void versionBtn.offsetWidth;
+          versionBtn.classList.add('version-updated');
+          versionBadge.classList.add('badge-updated');
+          versionBtn.addEventListener('animationend', () => versionBtn.classList.remove('version-updated'), { once: true });
+          versionBadge.addEventListener('animationend', () => versionBadge.classList.remove('badge-updated'), { once: true });
+        }
+
+        pendingVersionData = null;
+      }
+      if (validationProceedBtn) {
+        validationProceedBtn.addEventListener('click', () => {
+          ifcValidationModal.classList.remove('active');
+          finalizeVersionCreation();  // ← Call this instead
+        });
+      }
+
+      // Close on overlay click
+      if (ifcValidationModal) {
+        ifcValidationModal.addEventListener('click', (e) => {
+          if (e.target === ifcValidationModal) {
+            ifcValidationModal.classList.remove('active');
+          }
+        });
+      }
+
+
   </script>
+
+  <script>
+    // ---------- Demo login ----------
+    // The viewer links are encrypted with the login (PBKDF2-SHA256 + HMAC stream cipher).
+    // Pure JavaScript, so it works on plain http:// as well as HTTPS.
+    const LOCKED = {
+      salt:  'vwN5Wxb69DAYfBQj7Y4SgQ==',
+      iv:    'WJa06/1Q3fIZXnQQ1Cv0qQ==',
+      iters: 50000,
+      data:  'icdhd6w9A1bzCZheRb5BaZ6FxqHIqexrDZiUTE4+FY2rcTHAqqGMOpdtZXXyl7iPsvmFeBngmoaQQ13FXdzqDFi2oV1b+vLWq+RtWRPEGe3KbBNX6sOhMpVTIz2bkTkrU2ISTg6sCgZtpuWfgwoYAZjsaWx/bO8IQRELfyfEPD5UoGrBs/ruyKoxAaJDX33cVvOw6y6uLxa6a80kxV8cAJsPNZT+JghJyh6rY0RSOns/yy1om90rDcquRSm2XPQE3cRjKXnJaEiinxDA7QedS3wzKqWWWLwUEvt0PyoW6cC5logRPEdT70CJG9gIYPl0lULYwI1eWimXERw0JHkkFlZMX6ZQ7W9CxQ=='
+    };
+    const SESSION_KEY = 'acernis_demo_session';
+
+    // Minimal SHA-256 / HMAC / PBKDF2 in plain JS (works without HTTPS)
+    const K256 = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+    function sha256(msg) {
+      const len = msg.length, total = ((len + 9 + 63) >> 6) << 6;
+      const buf = new Uint8Array(total); buf.set(msg); buf[len] = 0x80;
+      const bits = len * 8; const dv = new DataView(buf.buffer);
+      dv.setUint32(total - 8, Math.floor(bits / 0x100000000)); dv.setUint32(total - 4, bits >>> 0);
+      const H = new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
+      const W = new Uint32Array(64);
+      for (let off = 0; off < total; off += 64) {
+        for (let i = 0; i < 16; i++) W[i] = dv.getUint32(off + i * 4);
+        for (let i = 16; i < 64; i++) {
+          const a = W[i-15], b = W[i-2];
+          const s0 = ((a>>>7)|(a<<25)) ^ ((a>>>18)|(a<<14)) ^ (a>>>3);
+          const s1 = ((b>>>17)|(b<<15)) ^ ((b>>>19)|(b<<13)) ^ (b>>>10);
+          W[i] = (W[i-16] + s0 + W[i-7] + s1) | 0;
+        }
+        let a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+        for (let i = 0; i < 64; i++) {
+          const S1 = ((e>>>6)|(e<<26)) ^ ((e>>>11)|(e<<21)) ^ ((e>>>25)|(e<<7));
+          const t1 = (h + S1 + ((e & f) ^ (~e & g)) + K256[i] + W[i]) | 0;
+          const S0 = ((a>>>2)|(a<<30)) ^ ((a>>>13)|(a<<19)) ^ ((a>>>22)|(a<<10));
+          const t2 = (S0 + ((a & b) ^ (a & c) ^ (b & c))) | 0;
+          h=g; g=f; f=e; e=(d+t1)|0; d=c; c=b; b=a; a=(t1+t2)|0;
+        }
+        H[0]+=a; H[1]+=b; H[2]+=c; H[3]+=d; H[4]+=e; H[5]+=f; H[6]+=g; H[7]+=h;
+      }
+      const out = new Uint8Array(32); const odv = new DataView(out.buffer);
+      for (let i = 0; i < 8; i++) odv.setUint32(i * 4, H[i]);
+      return out;
+    }
+    function concat(a, b) { const r = new Uint8Array(a.length + b.length); r.set(a); r.set(b, a.length); return r; }
+    function hmac(key, msg) {
+      if (key.length > 64) key = sha256(key);
+      const k = new Uint8Array(64); k.set(key);
+      const ip = k.map(x => x ^ 0x36), op = k.map(x => x ^ 0x5c);
+      return sha256(concat(op, sha256(concat(ip, msg))));
+    }
+    function pbkdf2(pass, salt, iters) {
+      let u = hmac(pass, concat(salt, new Uint8Array([0,0,0,1])));
+      const t = u.slice();
+      for (let i = 1; i < iters; i++) { u = hmac(pass, u); for (let j = 0; j < 32; j++) t[j] ^= u[j]; }
+      return t;
+    }
+    function streamXor(key, iv, data) {
+      const out = new Uint8Array(data.length);
+      for (let blk = 0; blk * 32 < data.length; blk++) {
+        const ks = hmac(key, concat(iv, new Uint8Array([blk>>>24, blk>>>16 & 255, blk>>>8 & 255, blk & 255])));
+        for (let j = 0; j < 32 && blk * 32 + j < data.length; j++) out[blk*32+j] = data[blk*32+j] ^ ks[j];
+      }
+      return out;
+    }
+
+    const b64 = s => Uint8Array.from(atob(s), ch => ch.charCodeAt(0));
+
+    function unlock(user, pass) {
+      const key = pbkdf2(new TextEncoder().encode(user + ':' + pass), b64(LOCKED.salt), LOCKED.iters);
+      const plain = new TextDecoder().decode(streamXor(key, b64(LOCKED.iv), b64(LOCKED.data)));
+      if (!plain.startsWith('OK:')) throw new Error('bad login');
+      return JSON.parse(plain.slice(3));
+    }
+
+    function applySecrets(sec) {
+      document.body.classList.remove('locked');
+      try { SHAPEDIVER_IFRAME_URL = sec.shapemaker; BIM_APP_URL = sec.bim; } catch (e) {}
+      try { Object.keys(versionModels).forEach(v => { versionModels[v] = sec.shapemaker; }); } catch (e) {}
+      setTimeout(() => { try { map.invalidateSize(); } catch (e) {} }, 50);
+    }
+
+    const loginForm = document.getElementById('loginForm');
+    const loginError = document.getElementById('loginError');
+    const loginBtn = document.getElementById('loginBtn');
+
+    try {
+      const saved = sessionStorage.getItem(SESSION_KEY);
+      if (saved) applySecrets(JSON.parse(saved));
+    } catch (e) {}
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = document.getElementById('loginUser').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      loginError.style.display = 'none';
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Signing in…';
+      setTimeout(() => {
+        try {
+          const sec = unlock(user, pass);
+          try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(sec)); } catch (e) {}
+          applySecrets(sec);
+        } catch (err) {
+          loginError.style.display = 'block';
+        }
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Log in';
+      }, 30);
+    });
+
+    // ---------- Shapemaker login mask ----------
+    // Shapemaker is cross-origin: this page cannot read what's typed in its
+    // frame, write into it, or tell which login step is showing. So the mint
+    // cut-out is sized once to fit the TALLER (password) step and left alone.
+    // Both the email and password steps then sit fully inside it, whether the
+    // user clicks Continue or presses Enter. The only signal we can read is the
+    // sub-frame count: Shapemaker loads its chat-widget sub-frame once signed
+    // in, so a new sub-frame appearing = signed in -> remove the mint.
+    (function () {
+      const SM_CARD_W = 390;          // slightly under the 400px card so no blue edge shows
+      const SM_LOGO_H = 86.9;         // white logo above the card
+      const SM_CARD_GAP = 40;         // space between logo and card
+      const SM_CARD_H = 249;          // login (email) card height — fits that window only
+
+      const frameBox = document.getElementById('shapediverViewerContent');
+      const frame = document.getElementById('shapediverViewerIframe');
+      const mask = document.getElementById('smLoginMask');
+      const hole = document.getElementById('smLoginHole');
+      const info = document.getElementById('smLoginInfo');
+      const loader = document.getElementById('smLoader');
+      const LOADER_MIN_MS = 1100;     // keep the animation on screen at least this long
+      let loaderShownAt = 0, hideTimer = null;
+      function showLoader() {
+        clearTimeout(hideTimer);
+        loaderShownAt = Date.now();
+        loader.classList.add('active');
+      }
+      function hideLoader() {
+        const wait = Math.max(0, LOADER_MIN_MS - (Date.now() - loaderShownAt));
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(() => loader.classList.remove('active'), wait);
+      }
+      let baseline = null;            // sub-frame count when the login page loaded
+      let interacted = false;         // user clicked into the login form
+      let poll = null;
+      let done = false;               // reset on every page load
+      try { sessionStorage.removeItem('acernis_sm_signed_in'); } catch (e) {}   // clear flag from older versions
+
+      const signedIn = () => done;
+      const subFrames = () => { try { return frame.contentWindow ? frame.contentWindow.length : 0; } catch (e) { return 0; } };
+
+      function place() {
+        const w = frameBox.clientWidth, h = frameBox.clientHeight;
+        if (!w || !h) return;
+        const top = 0.14 * h + SM_LOGO_H + SM_CARD_GAP;
+        hole.style.left = ((w - SM_CARD_W) / 2) + 'px';
+        hole.style.top = top + 'px';
+        hole.style.width = SM_CARD_W + 'px';
+        hole.style.height = SM_CARD_H + 'px';
+        info.style.left = (w / 2) + 'px';
+        info.style.top = (top + SM_CARD_H + 24) + 'px';
+      }
+
+      function finish(reloadModel) {
+        clearInterval(poll); poll = null;
+        mask.classList.remove('active');
+        done = true;
+        console.debug('[sm-mask] signed in, mask removed');
+        // After login Shapemaker lands on its site list, so open the model again.
+        if (reloadModel && SHAPEDIVER_IFRAME_URL) {
+          showLoader();                 // model takes a moment to load
+          frame.src = SHAPEDIVER_IFRAME_URL;
+        }
+      }
+
+      function startWatching() {
+        clearInterval(poll);
+        poll = setInterval(() => {
+          if (baseline === null) return;
+          if (subFrames() > baseline) finish(interacted);
+        }, 300);
+      }
+
+      // Note when the user first clicks into the login form (so that after
+      // sign-in we know to reopen the model rather than leave the site list).
+      window.addEventListener('blur', () => {
+        setTimeout(() => {
+          if (document.activeElement === frame && mask.classList.contains('active')) interacted = true;
+        }, 0);
+      });
+
+      // Open the Static Pre-check viewer: show the loading animation while the
+      // Shapemaker frame loads, and arm the mint mask underneath it.
+      document.getElementById('structuralCard').addEventListener('click', () => {
+        if (signedIn()) { showLoader(); return; }
+        showLoader();
+        mask.classList.add('active');
+        requestAnimationFrame(place);
+        console.debug('[sm-mask] loader shown, mask armed');
+        startWatching();
+      });
+
+      // Each time a Shapemaker page finishes loading: drop the loader, and
+      // record the sub-frame count so a later new sub-frame = signed in.
+      frame.addEventListener('load', () => {
+        if (!frame.src || frame.src === 'about:blank') return;
+        hideLoader();
+        if (signedIn()) return;
+        baseline = subFrames();
+        place();
+        console.debug('[sm-mask] frame loaded, sub-frames:', baseline);
+      });
+
+      new ResizeObserver(place).observe(frameBox);
+    })();
+
+    // ---------- Demo mode: only the Static Pre-check card is interactive ----------
+    // Clicks on every other button/card are swallowed before their handlers run.
+    const DEMO_ALLOWED = ['#structuralCard', '#logoutBtn', '#loginForm'];
+    const DEMO_CLICKABLE = 'button, .card, .add-card, .info-icon, .version-btn, a, label, input[type="file"]';
+    document.addEventListener('click', (e) => {
+      const el = e.target.closest(DEMO_CLICKABLE);
+      if (!el) return;
+      if (DEMO_ALLOWED.some(sel => el.closest(sel))) return;
+      e.stopPropagation();
+      e.preventDefault();
+    }, true);
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      try { sessionStorage.removeItem(SESSION_KEY); sessionStorage.removeItem('acernis_sm_signed_in'); } catch (e) {}
+      location.reload();
+    });
+  </script>-e
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"8607d2a720d14b038279025b2b5a82e5"}' crossorigin="anonymous"></script>
+
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4bc70e2c01a94c73b74392e4234840661791215815920" integrity="sha512-L0ha0OXavK/8okipN9F8BtP84dg9DUhPERbBXzwI6dgTA55d2+yweo3pn5CSFYs45/r8md2+xvUPtTdvTNRfjA==" data-cf-beacon='{"version":"2024.11.0","token":"8607d2a720d14b038279025b2b5a82e5","spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>
