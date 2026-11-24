@@ -1472,6 +1472,57 @@
 
     /* ---------- Demo login ---------- */
     body.locked .app { visibility: hidden; }
+    body.picking .app { visibility: hidden; }   /* hide the project view while choosing */
+
+    /* ---------- Project list (main page, table style) ---------- */
+    .project-list {
+      position: fixed; inset: 0; z-index: 4000;
+      display: none; flex-direction: column;
+      background: var(--white); padding: 40px 48px; overflow-y: auto;
+    }
+    body.picking:not(.locked) .project-list { display: flex; }
+    .project-list-inner { width: 100%; max-width: 1400px; margin: 0 auto; }
+    .pl-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; gap: 16px; }
+    .pl-title { font-size: 22px; font-weight: 600; color: var(--text); }
+    .pl-newbtn {
+      background: var(--primary-800); color: #fff; border: none; border-radius: 9px;
+      padding: 11px 18px; font-size: 14px; font-weight: 600; font-family: inherit;
+      display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    }
+    .pl-newbtn:hover { background: var(--primary-900); }
+    .pl-search { position: relative; max-width: 440px; margin-bottom: 20px; }
+    .pl-search input {
+      width: 100%; padding: 12px 40px 12px 16px; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 13px; font-family: inherit; color: var(--text);
+    }
+    .pl-search input:focus { outline: none; border-color: var(--primary-700); }
+    .pl-search svg { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--muted); }
+
+    .pl-table { width: 100%; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .pl-cols { display: grid; grid-template-columns: minmax(0,2.6fr) 1.3fr 1fr 1fr 44px; align-items: center; gap: 16px; }
+    .pl-row-head { padding: 14px 20px; background: #f7f9f8; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--text); }
+    .pl-row { padding: 16px 20px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .12s ease; }
+    .pl-row:last-child { border-bottom: none; }
+    .pl-row:hover { background: #f4f8f5; }
+    .pl-proj { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .pl-thumb { width: 46px; height: 46px; border-radius: 8px; object-fit: cover; background: #1f6b4f; flex: none; }
+    .pl-proj-text { min-width: 0; }
+    .pl-proj-name { font-size: 14px; font-weight: 700; color: var(--primary-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pl-proj-addr { font-size: 12.5px; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pl-created-name { font-size: 13.5px; color: var(--text); }
+    .pl-created-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .pl-status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 8px; border: 1px solid; white-space: nowrap; }
+    .pl-status svg { width: 13px; height: 13px; }
+    .pl-status.completed { color: #15803d; background: #f0fdf4; border-color: #bbf7d0; }
+    .pl-workspace { display: inline-flex; font-size: 12px; font-weight: 600; color: #7c3aed; background: #f5f3ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 5px 11px; }
+    .pl-gear { color: var(--muted); display: flex; justify-content: center; }
+    .pl-gear svg { width: 17px; height: 17px; }
+    @media (max-width: 860px) {
+      .project-list { padding: 28px 18px; }
+      .pl-cols { grid-template-columns: minmax(0,1fr) auto 44px; }
+      .pl-col-created, .pl-col-workspace { display: none; }
+    }
+
     .login-screen {
       position: fixed; inset: 0; z-index: 5000;
       display: flex; align-items: center; justify-content: center;
@@ -1574,6 +1625,82 @@
     </form>
   </div>
 
+  <!-- Main project list (shown after login) -->
+  <div class="project-list" id="projectListScreen">
+    <div class="project-list-inner">
+      <div class="pl-head">
+        <div class="pl-title">All projects (2)</div>
+        <button class="pl-newbtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          New Project
+        </button>
+      </div>
+
+      <div class="pl-search">
+        <input type="text" id="plSearch" placeholder="Search projects by name or address...">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </div>
+
+      <div class="pl-table" id="projGrid">
+        <div class="pl-row-head pl-cols">
+          <div>Projects</div>
+          <div class="pl-col-created">Created by</div>
+          <div>Status</div>
+          <div class="pl-col-workspace">Workspace</div>
+          <div></div>
+        </div>
+
+        <div class="pl-row pl-cols proj-card" data-project="p1">
+          <div class="pl-proj">
+            <img class="pl-thumb" src="project%20cover.png" alt="">
+            <div class="pl-proj-text">
+              <div class="pl-proj-name">5657-H_DE-TIMS-060317</div>
+              <div class="pl-proj-addr">Wasserkrüger Weg 127, 23879 Mölln, DE</div>
+            </div>
+          </div>
+          <div class="pl-col-created">
+            <div class="pl-created-name">Operations Acernis</div>
+            <div class="pl-created-date">On Sep-22-2026</div>
+          </div>
+          <div>
+            <span class="pl-status completed">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Completed
+            </span>
+          </div>
+          <div class="pl-col-workspace"><span class="pl-workspace">Acernis Demo</span></div>
+          <div class="pl-gear">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </div>
+        </div>
+
+        <div class="pl-row pl-cols proj-card" data-project="p2">
+          <div class="pl-proj">
+            <img class="pl-thumb" src="project2_cover.png" alt="">
+            <div class="pl-proj-text">
+              <div class="pl-proj-name">0375-H_DE-TIMS-12359</div>
+              <div class="pl-proj-addr">Hildesheimer Str. 46, 38159 Vechelde, DE</div>
+            </div>
+          </div>
+          <div class="pl-col-created">
+            <div class="pl-created-name">Operations Acernis</div>
+            <div class="pl-created-date">On Nov-18-2026</div>
+          </div>
+          <div>
+            <span class="pl-status completed">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Completed
+            </span>
+          </div>
+          <div class="pl-col-workspace"><span class="pl-workspace">Acernis Demo</span></div>
+          <div class="pl-gear">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="app">
 
     <!-- Left icon rail -->
@@ -1628,8 +1755,8 @@
 
       <!-- Cover image -->
       <div class="cover-section">
-        <img src="project%20cover.png" alt="Project cover" class="cover-image">
-        <button class="back-btn">
+        <img src="project%20cover.png" alt="Project cover" class="cover-image" id="pvCover">
+        <button class="back-btn" id="pvBack">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
@@ -1677,7 +1804,7 @@
 
       <div class="sidebar-header">
         <div class="project-title-row">
-          <div class="project-code">5657-H_DE-TIMS-060317</div>
+          <div class="project-code" id="pvName">5657-H_DE-TIMS-060317</div>
           <button class="new-version-btn" id="newVersionBtn" title="Create a new version">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -1686,9 +1813,9 @@
             <span>New Version</span>
           </button>
         </div>
-        <div class="project-meta">Created by Operations Acernis on 22 Sep 2026</div>
-        <div class="project-address">Wasserkrüger Weg 127, 23879 Mölln, DE</div>
-        <div class="project-coords">Coordinates: 53.6152342, 10.6909497</div>
+        <div class="project-meta" id="pvCreated">Created by Operations Acernis on 22 Sep 2026</div>
+        <div class="project-address" id="pvAddress">Wasserkrüger Weg 127, 23879 Mölln, DE</div>
+        <div class="project-coords" id="pvCoords">Coordinates: 53.6152342, 10.6909497</div>
         <!-- Version Button -->
         <button class="version-btn" id="versionBtn" title="View version history">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2307,13 +2434,13 @@
     });
 
 
-    // Add marker at project location
-    L.marker([53.6152342, 10.6909497], { icon: customMarkerIcon })
+    // Add marker at project location (kept in a ref so projects can move it)
+    const projectMarker = L.marker([53.6152342, 10.6909497], { icon: customMarkerIcon })
       .addTo(map)
-      .bindPopup('Project Location: W0632');
+      .bindPopup('Project Location');
 
     // Add 30m radius circle with fill
-    L.circle([53.6152342, 10.6909497], {
+    const projectCircle30 = L.circle([53.6152342, 10.6909497], {
       radius: 30,
       color: '#2563eb',
       weight: 2,
@@ -2325,7 +2452,7 @@
     }).addTo(map);
 
     // Add 120m radius circle with fill
-    L.circle([53.6152342, 10.6909497], {
+    const projectCircle120 = L.circle([53.6152342, 10.6909497], {
       radius: 120,
       color: '#2563eb',
       weight: 2,
@@ -3103,10 +3230,10 @@
     // The viewer links are encrypted with the login (PBKDF2-SHA256 + HMAC stream cipher).
     // Pure JavaScript, so it works on plain http:// as well as HTTPS.
     const LOCKED = {
-      salt:  'vwN5Wxb69DAYfBQj7Y4SgQ==',
-      iv:    'WJa06/1Q3fIZXnQQ1Cv0qQ==',
+      salt:  'ZBwQQRtuiY+Ifn/83yBpmA==',
+      iv:    '14skcWBuxSWCRT9G2T9Azw==',
       iters: 50000,
-      data:  'icdhd6w9A1bzCZheRb5BaZ6FxqHIqexrDZiUTE4+FY2rcTHAqqGMOpdtZXXyl7iPsvmFeBngmoaQQ13FXdzqDFi2oV1b+vLWq+RtWRPEGe3KbBNX6sOhMpVTIz2bkTkrU2ISTg6sCgZtpuWfgwoYAZjsaWx/bO8IQRELfyfEPD5UoGrBs/ruyKoxAaJDX33cVvOw6y6uLxa6a80kxV8cAJsPNZT+JghJyh6rY0RSOns/yy1om90rDcquRSm2XPQE3cRjKXnJaEiinxDA7QedS3wzKqWWWLwUEvt0PyoW6cC5logRPEdT70CJG9gIYPl0lULYwI1eWimXERw0JHkkFlZMX6ZQ7W9CxQ=='
+      data:  '8bykVaiOuaCcr2VtvTa8L8JEweuQ7gcxFKqDOTSJcuNFMr/yWNaqWUqupNOVwW4Q4oZ7o3R55F700qCvwIMwt5q1M/H2Vl/ycj4lwAFXK0VdtE8+3YMjtkvzMn/NKjVpbq3CS2FeW8IJdF5Iiaamj7imkKxMlq9V2XhhaDdo1ufUQUbPjrapefndAOBXVWPypOIEhXvDO+rTIQ1V7+Tef39y6a271L3taA1Vm+EqB5w70Lz4z/dHS7YyodvLO5aKG01ehdIkJg67tkAHonslAmNIY9iowLVEXkrL9TyDmOBQog8ouqFylws5v+io5QOsm8HgdO/XapMntiJ8Cc2pCbYiRFOEZm5T0Er2xNXp3DSxS0l+W8QLQ3c6RdbnZ+mbCTEgm2DWkMbkNl5lgk+nxMev13HfO7cXUxFPJ37iAz2EWab4BKeBmTjybzX8mmcJj+hWH45D7qqoJrtWRl5HFT2oj0Q='
     };
     const SESSION_KEY = 'acernis_demo_session';
 
@@ -3172,12 +3299,93 @@
       return JSON.parse(plain.slice(3));
     }
 
+    // ---------- Projects ----------
+    const PROJECTS = {
+      p1: {
+        name: '5657-H_DE-TIMS-060317',
+        created: 'Created by Operations Acernis on 22 Sep 2026',
+        address: 'Wasserkrüger Weg 127, 23879 Mölln, DE',
+        coords: [53.6152342, 10.6909497],
+        cover: 'project%20cover.png'
+      },
+      p2: {
+        name: '0375-H_DE-TIMS-12359',
+        created: 'Created by Operations Acernis on 22 Sep 2026',
+        address: 'Hildesheimer Str. 46, 38159 Vechelde, DE',
+        coords: [52.2618, 10.3765],
+        cover: 'project2_cover.png'
+      }
+    };
+
+    let SECRETS = null;
+
+    // After login: hold the decrypted links and show the project list.
     function applySecrets(sec) {
+      SECRETS = sec;
       document.body.classList.remove('locked');
-      try { SHAPEDIVER_IFRAME_URL = sec.shapemaker; BIM_APP_URL = sec.bim; } catch (e) {}
-      try { Object.keys(versionModels).forEach(v => { versionModels[v] = sec.shapemaker; }); } catch (e) {}
-      setTimeout(() => { try { map.invalidateSize(); } catch (e) {} }, 50);
+      document.body.classList.add('picking');
     }
+
+    function showProjectList() {
+      document.body.classList.add('picking');
+    }
+
+    function selectProject(pid) {
+      const p = PROJECTS[pid];
+      if (!p || !SECRETS) return;
+
+      // Sidebar text + cover image
+      document.getElementById('pvName').textContent = p.name;
+      document.getElementById('pvCreated').textContent = p.created;
+      document.getElementById('pvAddress').textContent = p.address;
+      document.getElementById('pvCoords').textContent = 'Coordinates: ' + p.coords[0] + ', ' + p.coords[1];
+      document.getElementById('pvCover').src = p.cover;
+
+      // Map: recenter and move the marker + radius circles
+      try {
+        map.setView(p.coords, 16);
+        projectMarker.setLatLng(p.coords);
+        projectCircle30.setLatLng(p.coords);
+        projectCircle120.setLatLng(p.coords);
+      } catch (e) {}
+
+      // This project's Static Pre-check link (decrypted at login)
+      SHAPEDIVER_IFRAME_URL = (SECRETS.projects && SECRETS.projects[pid]) || '';
+      BIM_APP_URL = SECRETS.bim || '';
+      try { Object.keys(versionModels).forEach(v => { versionModels[v] = SHAPEDIVER_IFRAME_URL; }); } catch (e) {}
+
+      // Reset the Static Pre-check viewer so it reloads this project's model
+      try { shapediverIframe.src = 'about:blank'; delete shapediverIframe.dataset.loaded; } catch (e) {}
+
+      // Back to the default map view, clear any card selection
+      defaultViewer.style.display = 'flex';
+      viewerContent.classList.remove('active');
+      feaViewerContent.style.display = 'none';
+      shapediverViewerContent.style.display = 'none';
+      allCards.forEach(c => c.classList.remove('selected'));
+
+      // Reveal the project view
+      document.body.classList.remove('picking');
+      setTimeout(() => { try { map.invalidateSize(); } catch (e) {} }, 60);
+    }
+
+    // Project-list cards + the sidebar "Back" button
+    document.querySelectorAll('#projGrid .proj-card').forEach(card => {
+      card.addEventListener('click', () => selectProject(card.dataset.project));
+    });
+    // Filter rows by name/address
+    const plSearch = document.getElementById('plSearch');
+    if (plSearch) plSearch.addEventListener('input', () => {
+      const q = plSearch.value.trim().toLowerCase();
+      document.querySelectorAll('#projGrid .pl-row').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+    document.getElementById('pvBack').addEventListener('click', () => {
+      shapediverViewerContent.style.display = 'none';
+      defaultViewer.style.display = 'flex';
+      showProjectList();
+    });
 
     const loginForm = document.getElementById('loginForm');
     const loginError = document.getElementById('loginError');
@@ -3316,7 +3524,7 @@
 
     // ---------- Demo mode: only the Static Pre-check card is interactive ----------
     // Clicks on every other button/card are swallowed before their handlers run.
-    const DEMO_ALLOWED = ['#structuralCard', '#logoutBtn', '#loginForm'];
+    const DEMO_ALLOWED = ['#structuralCard', '#logoutBtn', '#loginForm', '#pvBack', '.proj-card'];
     const DEMO_CLICKABLE = 'button, .card, .add-card, .info-icon, .version-btn, a, label, input[type="file"]';
     document.addEventListener('click', (e) => {
       const el = e.target.closest(DEMO_CLICKABLE);
